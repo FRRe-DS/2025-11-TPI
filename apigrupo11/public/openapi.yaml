@@ -1,0 +1,705 @@
+openapi: 3.0.4
+info:
+  title: API de Stock de Bienes y Servicios (Autenticación por ID de Usuario)
+  description: |
+    Servicio de gestión de stock para el subsistema de Bienes y Servicios.
+    Incluye operaciones CRUD de productos, reserva y liberación de stock.
+    La autorización se realiza mediante el ID de usuario explícito en las solicitudes.
+  version: 1.4.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  - url: https://stock.ds.frre.utn.edu.ar/v1
+
+tags:
+  - name: Productos
+    description: Operaciones relacionadas con productos
+  - name: Stock
+    description: Operaciones relacionadas con reservas de stock
+  - name: Categorías
+    description: Operaciones para gestionar las categorías de productos
+  - name: Reservas
+    description: Operaciones para gestionar reservas de usuarios
+
+paths:
+  /productos:
+    get:
+      tags: [Productos]
+      summary: Listar productos
+      parameters:
+        - $ref: '#/components/parameters/PaginaActual'
+        - $ref: '#/components/parameters/PorPagina'
+        - $ref: '#/components/parameters/Busqueda'
+        - name: categoriaId
+          in: query
+          schema:
+            type: integer
+          description: "Filtrar productos por el ID de una categoría específica."
+      responses:
+        '200':
+          description: Lista de productos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Producto'
+    post:
+      tags: [Productos]
+      summary: Crear un producto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductoInput'
+      responses:
+        '201':
+          description: Producto creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductoCreado'
+        '400':
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /productos/{productoId}:
+    get:
+      tags: [Productos]
+      summary: Obtener un producto por ID
+      parameters:
+        - name: productoId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Producto encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Producto'
+        '404':
+          description: Producto no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      tags: [Productos]
+      summary: Actualizar parcialmente un producto
+      parameters:
+        - name: productoId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductoUpdate'
+      responses:
+        '200':
+          description: Producto actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Producto'
+    delete:
+      tags: [Productos]
+      summary: Eliminar un producto
+      parameters:
+        - name: productoId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Producto eliminado
+
+  /stock/reservar:
+    post:
+      tags: [Stock]
+      summary: Reservar stock para una compra
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservaInput'
+      responses:
+        '200':
+          description: Reserva confirmada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservaOutput'
+        '400':
+          description: Stock insuficiente o datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflicto de reserva (condición de carrera)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /stock/liberar:
+    post:
+      tags: [Stock]
+      summary: Liberar stock reservado
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LiberacionInput'
+      responses:
+        '200':
+          description: Stock liberado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiberacionOutput'
+        '404':
+          description: Reserva no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /reservas:
+    get:
+      tags: [Reservas]
+      summary: Listar reservas de un usuario
+      parameters:
+        - name: usuarioId
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: "ID del usuario para filtrar las reservas."
+        - $ref: '#/components/parameters/PaginaActual'
+        - $ref: '#/components/parameters/PorPagina'
+        - name: estado
+          in: query
+          schema:
+            type: string
+            enum: [confirmado, pendiente, cancelado]
+          description: "Filtrar reservas por estado"
+      responses:
+        '200':
+          description: Lista de reservas del usuario
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReservaCompleta'
+
+  /reservas/{idReserva}:
+    get:
+      tags: [Reservas]
+      summary: Consultar una reserva por ID
+      parameters:
+        - name: idReserva
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: usuarioId
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: "ID del usuario propietario de la reserva."
+      responses:
+        '200':
+          description: Reserva encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservaCompleta'
+        '404':
+          description: Reserva no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      tags: [Reservas]
+      summary: Actualizar estado de una reserva
+      parameters:
+        - name: idReserva
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarReservaInput'
+      responses:
+        '200':
+          description: Reserva actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservaCompleta'
+        '404':
+          description: Reserva no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /categorias:
+    get:
+      tags: [Categorías]
+      summary: Listar todas las categorías
+      responses:
+        '200':
+          description: Una lista de categorías.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Categoria'
+    post:
+      tags: [Categorías]
+      summary: Crear una nueva categoría
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoriaInput'
+      responses:
+        '201':
+          description: Categoría creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Categoria'
+        '400':
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /categorias/{categoriaId}:
+    get:
+      tags: [Categorías]
+      summary: Obtener una categoría por ID
+      parameters:
+        - name: categoriaId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Categoría encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Categoria'
+        '404':
+          description: Categoría no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      tags: [Categorías]
+      summary: Actualizar una categoría
+      parameters:
+        - name: categoriaId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoriaInput'
+      responses:
+        '200':
+          description: Categoría actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Categoria'
+    delete:
+      tags: [Categorías]
+      summary: Eliminar una categoría
+      parameters:
+        - name: categoriaId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Categoría eliminada
+
+components:
+  parameters:
+    PaginaActual:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+      description: Número de página
+    PorPagina:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+      description: Cantidad de resultados por página
+    Busqueda:
+      name: q
+      in: query
+      schema:
+        type: string
+      description: Texto de búsqueda
+
+  schemas:
+    Producto:
+      type: object
+      properties:
+        id:
+          type: integer
+        nombre:
+          type: string
+          minLength: 1
+          maxLength: 200
+        descripcion:
+          type: string
+        precio:
+          type: number
+          format: float
+          minimum: 0
+        stockDisponible:
+          type: integer
+          minimum: 0
+        pesoKg:
+          type: number
+          format: float
+          minimum: 0
+        imagenes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImagenProducto'
+          description: "Lista de imágenes del producto. Solo una puede ser marcada como principal."
+        categorias:
+          type: array
+          items:
+            $ref: '#/components/schemas/Categoria'
+          nullable: true
+
+    ProductoInput:
+      type: object
+      required: [nombre, precio, stockInicial]
+      properties:
+        nombre:
+          type: string
+        descripcion:
+          type: string
+        precio:
+          type: number
+          format: float
+        stockInicial:
+          type: integer
+        pesoKg:
+          type: number
+          format: float
+        imagenes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImagenProducto'
+        categoriaIds:
+          type: array
+          items:
+            type: integer
+          description: "Lista de IDs de las categorías a las que pertenece el producto."
+      example:
+        nombre: "Laptop Pro X"
+        descripcion: "Una laptop potente para profesionales."
+        precio: 1499.99
+        stockInicial: 50
+        pesoKg: 1.8
+        categoriaIds: [1, 5]
+
+    ProductoUpdate:
+      type: object
+      properties:
+        nombre:
+          type: string
+        descripcion:
+          type: string
+        precio:
+          type: number
+          format: float
+        stockInicial:
+          type: integer
+        pesoKg:
+          type: number
+          format: float
+        imagenes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImagenProducto'
+        categoriaIds:
+          type: array
+          items:
+            type: integer
+          description: "Lista de IDs de las categorías a las que pertenece el producto."
+
+    ProductoCreado:
+      type: object
+      properties:
+        id:
+          type: integer
+        mensaje:
+          type: string
+      example:
+        id: 101
+        mensaje: "Producto creado exitosamente."
+
+    ReservaInput:
+      type: object
+      required: [idCompra, usuarioId, productos]
+      properties:
+        idCompra:
+          type: string
+          description: "Identificador único de la compra en el sistema externo."
+        usuarioId:
+          type: integer
+          description: "ID del usuario que realiza la reserva."
+        productos:
+          type: array
+          items:
+            type: object
+            properties:
+              idProducto:
+                type: integer
+              cantidad:
+                type: integer
+                minimum: 1
+          description: "Lista de productos a reservar."
+      example:
+        idCompra: "COMPRA-XYZ-12345"
+        usuarioId: 123
+        productos:
+          - idProducto: 10
+            cantidad: 1
+          - idProducto: 25
+            cantidad: 2
+
+    ReservaOutput:
+      type: object
+      properties:
+        idReserva:
+          type: integer
+        idCompra:
+          type: string
+        usuarioId:
+          type: integer
+        estado:
+          type: string
+          enum: [confirmado, pendiente, cancelado]
+        expiresAt:
+          type: string
+          format: date-time
+        fechaCreacion:
+          type: string
+          format: date-time
+      example:
+        idReserva: 550
+        idCompra: "COMPRA-XYZ-12345"
+        usuarioId: 123
+        estado: "confirmado"
+        expiresAt: "2025-10-10T12:00:00Z"
+        fechaCreacion: "2025-09-25T10:30:00Z"
+
+    ReservaCompleta:
+      type: object
+      properties:
+        idReserva:
+          type: integer
+        idCompra:
+          type: string
+        usuarioId:
+          type: integer
+        estado:
+          type: string
+          enum: [confirmado, pendiente, cancelado]
+        expiresAt:
+          type: string
+          format: date-time
+        fechaCreacion:
+          type: string
+          format: date-time
+        fechaActualizacion:
+          type: string
+          format: date-time
+        productos:
+          type: array
+          items:
+            type: object
+            properties:
+              idProducto:
+                type: integer
+              nombre:
+                type: string
+              cantidad:
+                type: integer
+              precioUnitario:
+                type: number
+          description: "Detalle de los productos reservados."
+
+    ActualizarReservaInput:
+      type: object
+      required: [usuarioId, estado]
+      properties:
+        usuarioId:
+          type: integer
+          description: "ID del usuario propietario de la reserva para verificación."
+        estado:
+          type: string
+          enum: [confirmado, pendiente, cancelado]
+          description: "Nuevo estado de la reserva."
+      example:
+        usuarioId: 123
+        estado: "cancelado"
+
+    LiberacionInput:
+      type: object
+      required: [idReserva, usuarioId, motivo]
+      properties:
+        idReserva:
+          type: integer
+        usuarioId:
+          type: integer
+          description: "ID del usuario que realiza la liberación para verificación."
+        motivo:
+          type: string
+      example:
+        idReserva: 550
+        usuarioId: 123
+        motivo: "El cliente canceló la compra."
+
+    LiberacionOutput:
+      type: object
+      properties:
+        mensaje:
+          type: string
+        idReserva:
+          type: integer
+        estado:
+          type: string
+          enum: [liberado]
+      example:
+        mensaje: "Stock liberado correctamente."
+        idReserva: 550
+        estado: "liberado"
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: string
+          nullable: true
+      example:
+        code: "INVALID_DATA"
+        message: "Los datos proporcionados son inválidos."
+        details: "El campo 'usuarioId' es requerido."
+
+    Categoria:
+      type: object
+      properties:
+        id:
+          type: integer
+        nombre:
+          type: string
+          minLength: 1
+          maxLength: 100
+        descripcion:
+          type: string
+          nullable: true
+      example:
+        id: 1
+        nombre: "Electrónica"
+        descripcion: "Dispositivos electrónicos y accesorios."
+
+    CategoriaInput:
+      type: object
+      required: [nombre]
+      properties:
+        nombre:
+          type: string
+          minLength: 1
+          maxLength: 100
+        descripcion:
+          type: string
+          nullable: true
+      example:
+        nombre: "Hogar"
+        descripcion: "Artículos para el hogar y decoración."
+
+    ImagenProducto:
+      type: object
+      required: [url, esPrincipal]
+      properties:
+        url:
+          type: string
+          format: uri
+          description: "URL de la imagen."
+        esPrincipal:
+          type: boolean
+          description: "Indica si esta es la imagen principal del producto. Solo una imagen puede ser la principal."
+      example:
+        url: "https://example.com/images/laptop_frontal.jpg"
+        esPrincipal: true
+
+    UsuarioInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+        nombre:
+          type: string
+        email:
+          type: string
+          format: email
+      example:
+        id: 123
+        nombre: "Juan Pérez"
+        email: "juan.perez@example.com"
