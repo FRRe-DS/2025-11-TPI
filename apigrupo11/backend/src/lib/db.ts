@@ -208,6 +208,27 @@ export const db = {
     reservas.set(idReserva, r);
     return toReservaCompleta(r);
   },
+
+  cancelarReserva(idReserva: number, motivo: string): { ok: boolean; error?: string } {
+    const row = reservas.get(idReserva);
+    if (!row) return { ok: false, error: "Reserva no encontrada" };
+    
+    // Restaurar stock
+    row.items.forEach((i) => {
+      const p = productos.get(i.idProducto);
+      if (p) {
+        p.stockDisponible += i.cantidad;
+        productos.set(p.id, p);
+      }
+    });
+    
+    // Marcar como cancelada
+    row.estado = "cancelado";
+    row.fechaActualizacion = nowISO();
+    reservas.set(idReserva, row);
+    
+    return { ok: true };
+  },
 };
 
 function toReservaCompleta(row: ReservaRow): ReservaCompleta {

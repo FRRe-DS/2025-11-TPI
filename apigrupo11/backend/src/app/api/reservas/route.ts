@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { ReservaInput } from "@/lib/types";
 import { badRequest } from "@/app/api/_utils";
 
 export async function GET(req: NextRequest) {
@@ -11,4 +12,28 @@ export async function GET(req: NextRequest) {
   const estado = (searchParams.get("estado") as any) || undefined;
   const list = db.listarReservas(usuarioId, page, limit, estado);
   return NextResponse.json(list);
+}
+
+export async function POST(req: Request) {
+  const body = (await req.json().catch(() => null)) as ReservaInput | null;
+  if (!body || !body.idCompra || !body.usuarioId || !body.productos || !Array.isArray(body.productos)) {
+    return badRequest("Los datos proporcionados son inválidos.", "idCompra, usuarioId y productos son requeridos");
+  }
+  
+  const result = db.reservar(body);
+  
+  if (!result.ok) {
+    if (result.error?.includes("Stock insuficiente")) {
+      return NextResponse.json(
+        { code: "INSUFFICIENT_STOCK", message: result.error },
+        { status: 400 }
+      );
+    }
+    return NextResponse.json(
+      { code: "INVALID_DATA", message: result.error || "Error al crear la reserva" },
+      { status: 400 }
+    );
+  }
+  
+  return NextResponse.json(result.reserva, { status: 201 });
 }

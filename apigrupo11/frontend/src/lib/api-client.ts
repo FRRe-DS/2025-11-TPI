@@ -51,6 +51,20 @@ async function fetcher<T>(endpoint: string, options?: FetchOptions): Promise<T> 
 
 // ==================== PRODUCTOS ====================
 
+export interface Dimensiones {
+  largoCm?: number;
+  anchoCm?: number;
+  altoCm?: number;
+}
+
+export interface UbicacionAlmacen {
+  street: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+}
+
 export interface Producto {
   id: number;
   nombre: string;
@@ -58,6 +72,8 @@ export interface Producto {
   precio: number;
   stockDisponible: number;
   pesoKg?: number;
+  dimensiones?: Dimensiones;
+  ubicacion?: UbicacionAlmacen;
   imagenes?: Array<{ url: string; esPrincipal: boolean }>;
   categorias?: Array<{ id: number; nombre: string; descripcion?: string }>;
 }
@@ -68,6 +84,8 @@ export interface ProductoInput {
   precio: number;
   stockInicial: number;
   pesoKg?: number;
+  dimensiones?: Dimensiones;
+  ubicacion?: UbicacionAlmacen;
   imagenes?: Array<{ url: string; esPrincipal: boolean }>;
   categoriaIds?: number[];
 }
@@ -167,10 +185,22 @@ export const reservasApi = {
   obtener: (idReserva: number, usuarioId: number) =>
     fetcher<ReservaCompleta>(`/reservas/${idReserva}`, { params: { usuarioId } }),
   
+  crear: (data: ReservaInput) =>
+    fetcher<ReservaOutput>('/reservas', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  
   actualizar: (idReserva: number, data: { usuarioId: number; estado: EstadoReserva }) =>
     fetcher<ReservaCompleta>(`/reservas/${idReserva}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
+    }),
+  
+  cancelar: (idReserva: number, motivo: string) =>
+    fetcher<null>(`/reservas/${idReserva}`, {
+      method: 'DELETE',
+      body: JSON.stringify({ motivo }),
     }),
 };
 
