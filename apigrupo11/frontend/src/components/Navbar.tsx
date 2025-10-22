@@ -1,3 +1,5 @@
+'use client';
+
 import { Bell, User } from 'lucide-react';
 
 function Navbar() {
