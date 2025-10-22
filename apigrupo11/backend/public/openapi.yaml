@@ -27,6 +27,9 @@ paths:
   /productos:
     get:
       tags: [Productos]
+      operationId: listarProductos
+      security:
+        - OAuth2: [productos:read]      
       summary: Listar productos
       parameters:
         - $ref: '#/components/parameters/PaginaActual'
@@ -49,6 +52,9 @@ paths:
     post:
       tags: [Productos]
       summary: Crear un producto
+      operationId: crearProducto
+      security:
+        - OAuth2: [productos:write]
       requestBody:
         required: true
         content:
@@ -73,6 +79,9 @@ paths:
     get:
       tags: [Productos]
       summary: Obtener un producto por ID
+      operationId: obtenerProductoPorId
+      security:
+        - OAuth2: [productos:read]
       parameters:
         - name: productoId
           in: path
@@ -95,6 +104,9 @@ paths:
     patch:
       tags: [Productos]
       summary: Actualizar parcialmente un producto
+      operationId: actualizarProducto
+      security:
+        - OAuth2: [productos:write]
       parameters:
         - name: productoId
           in: path
@@ -117,6 +129,9 @@ paths:
     delete:
       tags: [Productos]
       summary: Eliminar un producto
+      operationId: eliminarProducto
+      security:
+        - OAuth2: [productos:write]
       parameters:
         - name: productoId
           in: path
@@ -127,64 +142,13 @@ paths:
         '204':
           description: Producto eliminado
 
-  /stock/reservar:
-    post:
-      tags: [Stock]
-      summary: Reservar stock para una compra
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ReservaInput'
-      responses:
-        '200':
-          description: Reserva confirmada
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ReservaOutput'
-        '400':
-          description: Stock insuficiente o datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: Conflicto de reserva (condición de carrera)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /stock/liberar:
-    post:
-      tags: [Stock]
-      summary: Liberar stock reservado
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LiberacionInput'
-      responses:
-        '200':
-          description: Stock liberado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LiberacionOutput'
-        '404':
-          description: Reserva no encontrada
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
   /reservas:
     get:
       tags: [Reservas]
       summary: Listar reservas de un usuario
+      operationId: listarReservas
+      security:
+        - OAuth2: [reservas:read]      
       parameters:
         - name: usuarioId
           in: query
@@ -209,11 +173,45 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ReservaCompleta'
+    post:
+      tags: [Reservas]
+      summary: Crear una reserva
+      operationId: crearReserva
+      security:
+        - OAuth2: [reservas:write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservaInput'
+      responses:
+        '201':
+          description: Reserva creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservaOutput'
+        '400':
+          description: Stock insuficiente o datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflicto de reserva (condición de carrera)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /reservas/{idReserva}:
     get:
       tags: [Reservas]
       summary: Consultar una reserva por ID
+      operationId: obtenerReservaPorId
+      security:
+        - OAuth2: [reservas:read]
       parameters:
         - name: idReserva
           in: path
@@ -242,6 +240,9 @@ paths:
     patch:
       tags: [Reservas]
       summary: Actualizar estado de una reserva
+      operationId: actualizarReserva
+      security:
+        - OAuth2: [reservas:write]
       parameters:
         - name: idReserva
           in: path
@@ -267,11 +268,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
+    delete:
+      tags: [Reservas]
+      summary: Cancelar una reserva
+      operationId: cancelarReserva
+      security:
+        - OAuth2: [reservas:write]
+      description: "Cancela una reserva y libera el stock correspondiente."
+      parameters:
+        - name: idReserva
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelacionReservaInput'
+      responses:
+        '204':
+          description: Reserva cancelada y stock liberado.
+        '404':
+          description: Reserva no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /categorias:
     get:
       tags: [Categorías]
       summary: Listar todas las categorías
+      operationId: listarCategorias
+      security:
+        - OAuth2: [categorias:read]
       responses:
         '200':
           description: Una lista de categorías.
@@ -284,6 +315,9 @@ paths:
     post:
       tags: [Categorías]
       summary: Crear una nueva categoría
+      operationId: crearCategoria
+      security: 
+        - OAuth2: [categorias:write]
       requestBody:
         required: true
         content:
@@ -308,6 +342,9 @@ paths:
     get:
       tags: [Categorías]
       summary: Obtener una categoría por ID
+      operationId: obtenerCategoriaPorId
+      security:
+        - OAuth2: [categorias:read]
       parameters:
         - name: categoriaId
           in: path
@@ -330,6 +367,9 @@ paths:
     patch:
       tags: [Categorías]
       summary: Actualizar una categoría
+      operationId: actualizarCategoria
+      security:
+        - OAuth2: [categorias:write]
       parameters:
         - name: categoriaId
           in: path
@@ -352,6 +392,9 @@ paths:
     delete:
       tags: [Categorías]
       summary: Eliminar una categoría
+      operationId: eliminarCategoria
+      security:
+        - OAuth2: [categorias:write]
       parameters:
         - name: categoriaId
           in: path
@@ -409,6 +452,10 @@ components:
           type: number
           format: float
           minimum: 0
+        dimensiones:
+          $ref: '#/components/schemas/Dimensiones'
+        ubicacion:
+          $ref: '#/components/schemas/UbicacionAlmacen'
         imagenes:
           type: array
           items:
@@ -436,6 +483,10 @@ components:
         pesoKg:
           type: number
           format: float
+        dimensiones:
+          $ref: '#/components/schemas/Dimensiones'
+        ubicacion:
+          $ref: '#/components/schemas/UbicacionAlmacen'
         imagenes:
           type: array
           items:
@@ -468,6 +519,10 @@ components:
         pesoKg:
           type: number
           format: float
+        dimensiones:
+          $ref: '#/components/schemas/Dimensiones'
+        ubicacion:
+          $ref: '#/components/schemas/UbicacionAlmacen'
         imagenes:
           type: array
           items:
@@ -596,6 +651,16 @@ components:
         usuarioId: 123
         estado: "cancelado"
 
+    CancelacionReservaInput:
+      type: object
+      required: [motivo]
+      properties:
+        motivo:
+          type: string
+          description: "Motivo de la cancelación de la reserva."
+      example:
+        motivo: "El cliente canceló la compra."
+
     LiberacionInput:
       type: object
       required: [idReserva, usuarioId, motivo]
@@ -626,6 +691,52 @@ components:
         mensaje: "Stock liberado correctamente."
         idReserva: 550
         estado: "liberado"
+
+    Dimensiones:
+      type: object
+      description: "Dimensiones del producto en centímetros."
+      properties:
+        largoCm:
+          type: number
+          format: float
+          minimum: 0
+        anchoCm:
+          type: number
+          format: float
+          minimum: 0
+        altoCm:
+          type: number
+          format: float
+          minimum: 0
+
+    UbicacionAlmacen:
+      type: object
+      description: "Ubicación física del producto en el almacén. Coincide con la estructura de dirección de la API de logística."
+      required: [street, city, state, postal_code, country]
+      properties:
+        street:
+          type: string
+          description: "Calle y número del almacén."
+          example: "Av. Vélez Sársfield 123"
+        city:
+          type: string
+          description: "Ciudad donde se encuentra el almacén."
+          example: "Resistencia"
+        state:
+          type: string
+          description: "Provincia donde se encuentra el almacén."
+          example: "Chaco"
+        postal_code:
+          type: string
+          description: "Código postal del almacén (formato CPA)."
+          pattern: '^([A-Z]{1}\d{4}[A-Z]{3})$'
+          example: "H3500ABC"
+        country:
+          type: string
+          description: "Código de país (ISO 3166-1 alfa-2)."
+          minLength: 2
+          maxLength: 2
+          example: "AR"
 
     ErrorResponse:
       type: object

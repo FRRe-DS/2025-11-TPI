@@ -13,6 +13,20 @@ export interface Categoria {
   descripcion?: string | null;
 }
 
+export interface Dimensiones {
+  largoCm?: number;
+  anchoCm?: number;
+  altoCm?: number;
+}
+
+export interface UbicacionAlmacen {
+  street: string;
+  city: string;
+  state: string;
+  postal_code: string; // formato CPA: ej. "H3500ABC"
+  country: string; // código ISO 3166-1 alfa-2, ej. "AR"
+}
+
 export interface Producto {
   id: number;
   nombre: string;
@@ -20,6 +34,8 @@ export interface Producto {
   precio: number; // float
   stockDisponible: number;
   pesoKg?: number; // float
+  dimensiones?: Dimensiones;
+  ubicacion?: UbicacionAlmacen;
   imagenes?: ImagenProducto[];
   categorias?: Categoria[] | null;
 }
@@ -30,6 +46,8 @@ export interface ProductoInput {
   precio: number;
   stockInicial: number;
   pesoKg?: number;
+  dimensiones?: Dimensiones;
+  ubicacion?: UbicacionAlmacen;
   imagenes?: ImagenProducto[];
   categoriaIds?: number[]; // for input only
 }
@@ -40,6 +58,8 @@ export interface ProductoUpdate {
   precio?: number;
   stockInicial?: number; // interpreted as new stockDisponible
   pesoKg?: number;
+  dimensiones?: Dimensiones;
+  ubicacion?: UbicacionAlmacen;
   imagenes?: ImagenProducto[];
   categoriaIds?: number[];
 }
@@ -90,6 +110,10 @@ export interface ReservaCompleta {
 export interface ActualizarReservaInput {
   usuarioId: number;
   estado: EstadoReserva;
+}
+
+export interface CancelacionReservaInput {
+  motivo: string;
 }
 
 export interface LiberacionInput {
