@@ -1,5 +1,7 @@
+'use client';
+
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Menu, LayoutDashboard, Users, Settings, LogOut } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -35,7 +37,7 @@ function Sidebar() {
       <nav className="flex-grow p-2 space-y-2">
         {/* dashboard */}
         <Link
-          to="/dashboard"
+          href="/dashboard"
           className="flex items-center py-3 px-2 rounded hover:bg-gray-200 transition-colors"
           title="Dashboard"
         >
@@ -47,7 +49,7 @@ function Sidebar() {
 
         {/* usuarios */}
         <Link
-          to="/usuarios"
+          href="/dashboard/usuarios"
           className="flex items-center py-3 px-2 rounded hover:bg-gray-200 transition-colors"
           title="Usuarios"
         >
@@ -59,7 +61,7 @@ function Sidebar() {
 
         {/* configuración */}
         <Link
-          to="/configuracion"
+          href="/dashboard/configuracion"
           className="flex items-center py-3 px-2 rounded hover:bg-gray-200 transition-colors"
           title="Configuración"
         >
@@ -73,7 +75,7 @@ function Sidebar() {
       <div className="p-2 mt-auto">
         {/* cerrar Sesión */}
         <Link
-          to="/"
+          href="/"
           className="flex items-center py-3 px-2 rounded hover:bg-red-100 transition-colors"
           title="Cerrar Sesión"
         >
