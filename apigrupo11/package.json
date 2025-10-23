@@ -10,11 +10,14 @@
     "dev": "npm run dev --workspace=backend",
     "dev:backend": "npm run dev --workspace=backend",
     "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:both": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "build": "npm run build --workspace=backend && npm run build --workspace=frontend",
     "build:backend": "npm run build --workspace=backend",
     "build:frontend": "npm run build --workspace=frontend",
-    "start": "npm run start --workspace=backend"
+    "start": "npm run start --workspace=backend",
+    "setup:keycloak": "./setup-keycloak.sh",
+    "test:auth": "echo '🧪 Testing authentication...' && curl -f http://localhost:3000/api/ping && curl -f http://localhost:5173"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
