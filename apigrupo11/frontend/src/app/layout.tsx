@@ -1,23 +1,20 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { AuthProvider } from "@/components/AuthProvider";
+import type { Metadata } from 'next';
+import '../index.css';
 
 export const metadata: Metadata = {
-  title: "Sistema de Gestión - Grupo 11",
-  description: "Desarrollo de Software 2025 - TPI Grupo 11",
+  title: 'Stock Management System',
+  description: 'Sistema de gestión de inventario y stock',
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="es">
       <body className="antialiased">
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        {children}
       </body>
     </html>
   );
