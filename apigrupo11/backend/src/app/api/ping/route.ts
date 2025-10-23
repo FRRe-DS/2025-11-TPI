@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  return NextResponse.json({ ok: true, message: "pong" });
+  return NextResponse.json({ 
+    ok: true, 
+    message: "pong", 
+    timestamp: new Date().toISOString(),
+    auth: "Keycloak authentication configured ✅"
+  });
 }
 
 export async function POST(req: Request) {
