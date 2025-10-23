@@ -1,5 +1,4 @@
 # Docker Compose for Stock Management System
-version: '3.8'
 
 services:
   postgres:

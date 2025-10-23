@@ -1,0 +1,9 @@
+{
+  "name": "Stock Frontend Dev Container",
+  "build": {
+    "dockerfile": "../Dockerfile"
+  },
+  "workspaceFolder": "/workspace",
+  "forwardPorts": [5173],
+  "postCreateCommand": "npm install"
+}
