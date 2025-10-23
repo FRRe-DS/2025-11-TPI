@@ -10,7 +10,7 @@ El objetivo general del sistema es implementar una plataforma de gestión empres
 Este repositorio corresponde al **subsistema de Stock**.  
 Desde esta interfaz web, los usuarios pueden visualizar métricas, administrar productos, controlar entradas y salidas de stock, y consultar el historial de movimientos.
 
----
+----
 
 ## 🖥️ Funcionalidades principales
 
