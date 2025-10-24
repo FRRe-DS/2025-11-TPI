@@ -1,6 +1,9 @@
 import type React from 'react';
 import { theme } from '../../styles/theme';
 import { IconButton } from '../ui/IconButton';
+import Bell from '../../assets/bell.svg';
+import Setting from '../../assets/settings.svg';
+import User from '../../assets/user.svg';
 
 const styles: { [key: string]: React.CSSProperties } = {
   header: {
@@ -31,9 +34,21 @@ const TopHeader: React.FC = () => {
     <header style={styles.header}>
       <h1 style={styles.logoText}>Stock</h1>
       <div style={styles.actions}>
-        <IconButton icon="⚙️" />
-        <IconButton icon="🔔" />
-        <IconButton icon="👤" notification />
+        <Setting
+          width={24}
+          height={24}
+          fill={theme.colors.textPrimary} // Dale el color de tu texto
+        />
+        <Bell
+          width={24}
+          height={24}
+          fill={theme.colors.textPrimary} // Dale el color de tu texto
+        />
+        <User
+          width={24}
+          height={24}
+          fill={theme.colors.textPrimary} // Dale el color de tu texto
+        />
       </div>
     </header>
   );
