@@ -57,6 +57,20 @@ export const InventoryPage: React.FC = () => {
 
   useEffect(() => {
     const loadProducts = async () => {
+      // Intentamos cargar desde localStorage primero
+      try {
+        const raw = localStorage.getItem('local_products_v1');
+        if (raw) {
+          const local = JSON.parse(raw) as IProducto[];
+          setProducts(local);
+          setIsLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.warn('No se pudo leer localStorage:', err);
+      }
+
+      // Si no hay localStorage, cargar desde la API
       const response = await getProducts();
       setProducts(response.data);
       setIsLoading(false);
@@ -70,6 +84,19 @@ export const InventoryPage: React.FC = () => {
     setIsAddModalOpen(false);
     // Opcional: Aquí podrías añadir lógica para recargar la tabla si se añadió un producto
     // loadProducts();
+  };
+  // Callback que recibe un producto nuevo desde el formulario y lo añade al estado
+  const handleAddProduct = (product: IProducto) => {
+    setProducts((prev) => {
+      const next = [product, ...prev];
+      try {
+        localStorage.setItem('local_products_v1', JSON.stringify(next));
+      } catch (err) {
+        console.warn('Error guardando productos en localStorage', err);
+      }
+      return next;
+    });
+    setIsAddModalOpen(false);
   };
   // --- (FIN) MODIFICACIÓN ---
 
@@ -114,7 +141,10 @@ export const InventoryPage: React.FC = () => {
       >
         {/* 3. Reemplazamos el <p> con el formulario real */}
         {/* Le pasamos la función 'onClose' para que el botón "Cancelar" funcione */}
-        <AddProductForm onClose={handleCloseAddModal} />
+        <AddProductForm
+          onClose={handleCloseAddModal}
+          onAdd={handleAddProduct}
+        />
       </Modal>
       {/* --- (FIN) MODIFICACIÓN --- */}
     </div>

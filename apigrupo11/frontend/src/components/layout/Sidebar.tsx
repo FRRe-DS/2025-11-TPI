@@ -3,6 +3,7 @@
 import type React from 'react';
 import { theme } from '../../styles/theme';
 import { SidebarLink } from './SidebarLink';
+import { FiHome, FiBox, FiSearch, FiLogOut } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
 export const Sidebar: React.FC = () => {
@@ -55,15 +56,9 @@ export const Sidebar: React.FC = () => {
   return (
     <aside style={styles.sidebar}>
       <nav style={styles.nav}>
-        <SidebarLink to="/" icon="🏠">
-          Dashboard
-        </SidebarLink>
-        <SidebarLink to="/inventario" icon="📦">
-          Inventario
-        </SidebarLink>
-        <SidebarLink to="/auditoria" icon="🔍">
-          Auditoría
-        </SidebarLink>
+        <SidebarLink to="/inventario" icon={<FiBox />}>Inventario</SidebarLink>
+        <SidebarLink to="/auditoria" icon={<FiSearch />}>Auditoría</SidebarLink>
+        <SidebarLink to="/" icon={<FiHome />}>Dashboard</SidebarLink>
       </nav>
 
       <div style={styles.logoutSection}>
@@ -82,7 +77,7 @@ export const Sidebar: React.FC = () => {
           }}
           onClick={handleLogout}
         >
-          <span>🚪</span>
+          <FiLogOut style={{ marginRight: theme.spacing.sm }} />
           <span>Cerrar Sesión</span>
         </button>
       </div>

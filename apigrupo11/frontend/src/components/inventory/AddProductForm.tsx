@@ -122,9 +122,10 @@ const initialFormState = {
 
 interface AddProductFormProps {
   onClose: () => void;
+  onAdd?: (product: any) => void;
 }
 
-export const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
+export const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onAdd }) => {
   const [formData, setFormData] = useState(initialFormState);
 
   // Handler para campos de texto/número simples
@@ -199,9 +200,34 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
     };
 
     console.log('Formulario a enviar (Payload):', payload);
-    // Aquí iría tu lógica para enviar 'payload' a la API
-    // ej. await createProduct(payload);
-    // onClose();
+    // Creamos un producto temporal en frontend (sin backend)
+    const newProduct = {
+      id: Date.now(),
+      nombre: payload.nombre,
+      descripcion: payload.descripcion,
+      precio: payload.precio,
+      stockDisponible: payload.stockInicial,
+      stockReservado: 0,
+      stockTotal: payload.stockInicial,
+      vendedorId: 0,
+      categoriaId: payload.categoriaIds.length > 0 ? payload.categoriaIds[0] : 0,
+      categoria: '',
+      pesoKg: payload.pesoKg,
+      fechaCreacion: new Date().toISOString(),
+      fechaActualizacion: new Date().toISOString(),
+      imagenes: payload.imagenes,
+      dimensiones: {
+        largo: payload.dimensiones.largoCm,
+        ancho: payload.dimensiones.anchoCm,
+        alto: payload.dimensiones.altoCm,
+      },
+      ubicacion: {
+        almacen: payload.ubicacion.street || `${payload.ubicacion.city}`,
+      },
+    };
+
+    if (onAdd) onAdd(newProduct);
+    onClose();
   };
 
   return (

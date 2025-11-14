@@ -1,5 +1,6 @@
 // src/pages/DashboardPage.tsx
 import React from "react";
+import { theme } from '../styles/theme';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -94,42 +95,27 @@ export const DashboardPage: React.FC = () => {
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: true,
-    aspectRatio: 2.2, // Más ancho para gráficos de línea y barras
+    aspectRatio: 2.2,
     plugins: {
       legend: {
         position: 'top' as const,
         labels: {
           padding: 20,
-          font: {
-            size: 12,
-          },
+          font: { size: 12 },
+          color: theme.colors.textSecondary,
         },
       },
-      title: {
-        display: false,
-      },
+      title: { display: false },
     },
     scales: {
       y: {
         beginAtZero: true,
-        grid: {
-          color: 'rgba(0, 0, 0, 0.1)',
-        },
-        ticks: {
-          font: {
-            size: 11,
-          },
-        },
+        grid: { color: 'rgba(230,238,248,0.04)' },
+        ticks: { color: theme.colors.textSecondary, font: { size: 11 } },
       },
       x: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          font: {
-            size: 11,
-          },
-        },
+        grid: { display: false },
+        ticks: { color: theme.colors.textSecondary, font: { size: 11 } },
       },
     },
   };
@@ -144,19 +130,14 @@ export const DashboardPage: React.FC = () => {
         labels: {
           padding: 15,
           usePointStyle: true,
-          font: {
-            size: 11,
-          },
+          font: { size: 11 },
+          color: theme.colors.textSecondary,
         },
       },
       tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        titleFont: {
-          size: 12,
-        },
-        bodyFont: {
-          size: 11,
-        },
+        backgroundColor: 'rgba(11,19,32,0.95)',
+        titleFont: { size: 12 },
+        bodyFont: { size: 11 },
       },
     },
     cutout: '50%', // Hace el agujero del centro más grande
@@ -164,19 +145,11 @@ export const DashboardPage: React.FC = () => {
 
   // ===== Interfaz visual =====
   return (
-    <div
-      style={{
-        padding: "2rem",
-        backgroundColor: "#fff",
-        color: "#1f2937",
-        minHeight: "100vh",
-        overflowY: "auto",
-      }}
-    >
-      <h1 style={{ fontSize: "32px", fontWeight: "700", marginBottom: "0.5rem" }}>
+    <div style={{ padding: '2rem', backgroundColor: theme.colors.background, color: theme.colors.textPrimary, minHeight: '100vh', overflowY: 'auto' }}>
+      <h1 style={{ fontSize: '32px', fontWeight: 700, marginBottom: '0.5rem', color: theme.colors.textPrimary }}>
         Panel de Control
       </h1>
-      <p style={{ color: "#6b7280", marginBottom: "2rem" }}>
+      <p style={{ color: theme.colors.textSecondary, marginBottom: '2rem' }}>
         Resumen general del estado del stock y las ventas.
       </p>
 
@@ -254,40 +227,40 @@ export const DashboardPage: React.FC = () => {
 
 // ===== Estilos Reutilizables =====
 const cardStyle: React.CSSProperties = {
-  backgroundColor: "#f9fafb",
-  borderRadius: "12px",
-  padding: "1.5rem",
-  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "flex-start",
-  gap: "0.5rem",
+  backgroundColor: theme.colors.surface,
+  borderRadius: '12px',
+  padding: '1.5rem',
+  boxShadow: theme.shadows.sm,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  gap: '0.5rem',
 };
 
 const cardTitle: React.CSSProperties = {
-  fontSize: "16px",
+  fontSize: '16px',
   fontWeight: 600,
-  color: "#4b5563",
+  color: theme.colors.textSecondary,
 };
 
 const cardValue: React.CSSProperties = {
-  fontSize: "24px",
+  fontSize: '24px',
   fontWeight: 700,
-  color: "#1f2937",
+  color: theme.colors.textPrimary,
 };
 
 const chartCard: React.CSSProperties = {
-  backgroundColor: "#f9fafb",
-  borderRadius: "12px",
-  padding: "1.5rem",
-  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+  backgroundColor: theme.colors.surface,
+  borderRadius: '12px',
+  padding: '1.5rem',
+  boxShadow: theme.shadows.sm,
 };
 
 const chartTitle: React.CSSProperties = {
-  fontSize: "18px",
+  fontSize: '18px',
   fontWeight: 700,
-  marginBottom: "1rem",
-  color: "#1f2937",
+  marginBottom: '1rem',
+  color: theme.colors.textPrimary,
 };
 
 export default DashboardPage;
