@@ -16,10 +16,28 @@ export async function GET(req: NextRequest) {
     const q = searchParams.get("q") || undefined;
     const categoriaId = searchParams.get("categoriaId") ? Number(searchParams.get("categoriaId")) : undefined;
 
-
     const result = await productoDB.list({ page, limit, q, categoriaId });
     
-    return NextResponse.json(result);
+    // Build query params for pagination links
+    const buildUrl = (pageNum: number) => {
+      const params = new URLSearchParams();
+      params.set("page", pageNum.toString());
+      params.set("limit", limit.toString());
+      if (q) params.set("q", q);
+      if (categoriaId) params.set("categoriaId", categoriaId.toString());
+      return `http://localhost:3000/api/productos?${params.toString()}`;
+    };
+
+    const response = {
+      data: result.data,
+      pagination: {
+        ...result.pagination,
+        previous: page > 1 ? buildUrl(page - 1) : null,
+        next: page < result.pagination.totalPages ? buildUrl(page + 1) : null
+      }
+    };
+    
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Error fetching productos:', error);
     return NextResponse.json(
