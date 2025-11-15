@@ -110,7 +110,7 @@ export default function DashboardPage() {
         </div>
         <div className="ml-4">
           <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-gray-900">{value.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-gray-900">{value}</p>
         </div>
       </div>
     </div>
