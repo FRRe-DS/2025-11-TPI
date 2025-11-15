@@ -10,14 +10,16 @@ export async function GET(req: NextRequest) {
   if (authResult.error) return authResult.error;
 
   try {
-    const { searchParams } = new URL(req.url);
+    const searchParams = req.nextUrl.searchParams;
     const page = Number(searchParams.get("page") || "1");
     const limit = Number(searchParams.get("limit") || "20");
     const q = searchParams.get("q") || undefined;
     const categoriaId = searchParams.get("categoriaId") ? Number(searchParams.get("categoriaId")) : undefined;
 
-    const list = await productoDB.list({ page, limit, q, categoriaId });
-    return NextResponse.json(list);
+
+    const result = await productoDB.list({ page, limit, q, categoriaId });
+    
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Error fetching productos:', error);
     return NextResponse.json(
