@@ -1,23 +1,23 @@
 @import "tailwindcss";
 
 /* Configuración del tema personalizado para Tailwind v4 */
-@theme {
-  --color-primary: #6366F1;
-  --color-primary-dark: #4F46E5;
-  --color-secondary: #6B7280;
-  --color-dark-bg: #0F172A;
-  --color-dark-bg-secondary: #1E293B;
-  --color-dark-border: #334155;
-  --color-background: #F8FAFC;
-  --color-surface: #FFFFFF;
-  --color-border: #E2E8F0;
-  --color-text-primary: #0F172A;
-  --color-text-secondary: #64748B;
-  --color-text-on-primary: #FFFFFF;
-  --color-text-on-dark: #F1F5F9;
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
-  --color-danger: #EF4444;
+:root {
+  --color-primary: #7C5CFF;
+  --color-primary-dark: #5B3EDF;
+  --color-secondary: #94A3B8;
+  --color-dark-bg: #0B1220;
+  --color-dark-bg-secondary: #0F1724;
+  --color-dark-border: #1F2A37;
+  --color-background: #071020;
+  --color-surface: #0B1320;
+  --color-border: #16202B;
+  --color-text-primary: #E6EEF8;
+  --color-text-secondary: #A9B6C2;
+  --color-text-on-primary: #F1F5F9;
+  --color-text-on-dark: #E6EEF8;
+  --color-success: #4ADE80;
+  --color-warning: #FBBF24;
+  --color-danger: #F87171;
 }
 
 :root {
@@ -81,12 +81,13 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
   cursor: pointer;
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: var(--color-primary-dark);
 }
 button:focus,
 button:focus-visible {

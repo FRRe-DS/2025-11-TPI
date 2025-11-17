@@ -17,7 +17,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   headerText: {
     fontSize: theme.fontSizes.small,
     fontWeight: '700',
-    color: theme.colors.textSecondary,
+    color: theme.colors.textPrimary,
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
     margin: 0,

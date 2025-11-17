@@ -4,30 +4,33 @@
 // en toda la aplicación.
 export const theme = {
   colors: {
-    // Colores principales
-    primary: '#6366F1', // Indigo moderno
-    primaryDark: '#4F46E5',
-    secondary: '#6B7280',
+    // Colores principales (acentos)
+    primary: '#7C5CFF', // púrpura-azulado suave
+    primaryDark: '#5B3EDF',
+    secondary: '#94A3B8',
 
-    darkBg: '#0F172A', // Fondo oscuro para sidebar
-    darkBgSecondary: '#1E293B', // Fondo secundario oscuro
-    darkBorder: '#334155', // Bordes en tema oscuro
+    // Fondos oscuros
+    darkBg: '#0B1220', // Very dark navy
+    darkBgSecondary: '#0F1724',
+    darkBorder: '#1F2A37',
 
-    // Colores Neutrales
-    background: '#F8FAFC', // Fondo general más suave
-    surface: '#FFFFFF',
-    border: '#E2E8F0',
+    // Superficies y elementos
+    background: '#071020', // fondo general oscuro
+    surface: '#0B1320', // tarjetas y paneles
+    border: '#16202B',
 
-    // Colores de Texto
-    textPrimary: '#0F172A',
-    textSecondary: '#64748B',
-    textOnPrimary: '#FFFFFF',
-    textOnDark: '#F1F5F9', // Text color for dark backgrounds
+  // Colores de Texto (claro sobre fondos oscuros)
+  textPrimary: '#E6EEF8',
+  textSecondary: '#A9B6C2',
+  // texto sobre botones/elementos primary (debe ser claro)
+  textOnPrimary: '#F1F5F9',
+  // texto sobre fondos oscuros generales
+  textOnDark: '#E6EEF8',
 
-    // Colores Semánticos
-    success: '#10B981',
-    warning: '#F59E0B',
-    danger: '#EF4444',
+    // Colores Semánticos (mantener contraste)
+    success: '#4ADE80',
+    warning: '#FBBF24',
+    danger: '#F87171',
   },
 
   fonts: {
@@ -59,8 +62,8 @@ export const theme = {
   },
 
   shadows: {
-    sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-    md: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-    lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+    sm: '0 1px 2px 0 rgba(0, 0, 0, 0.5)',
+    md: '0 6px 18px -6px rgba(0, 0, 0, 0.6)',
+    lg: '0 18px 50px -20px rgba(0, 0, 0, 0.7)',
   },
 };

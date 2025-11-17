@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { theme } from '../../styles/theme';
 
 interface IconButtonProps {
-  icon: string;
+  icon: React.ReactNode;
   notification?: boolean;
+  badgeCount?: number;
   onClick?: () => void; // CORRECCIÓN: Añadimos la prop opcional onClick
 }
 
 export const IconButton: React.FC<IconButtonProps> = ({
   icon,
   notification,
+  badgeCount,
   onClick,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -34,11 +36,17 @@ export const IconButton: React.FC<IconButtonProps> = ({
       position: 'absolute',
       top: '8px',
       right: '8px',
-      width: '8px',
-      height: '8px',
-      borderRadius: '50%',
+      minWidth: '18px',
+      height: '18px',
+      borderRadius: '18px',
       backgroundColor: theme.colors.danger,
-      border: `2px solid ${theme.colors.surface}`,
+      border: `2px solid rgba(255,255,255,0.06)`,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: theme.colors.textOnDark,
+      fontSize: '12px',
+      padding: '0 5px',
     },
   };
 
@@ -50,7 +58,11 @@ export const IconButton: React.FC<IconButtonProps> = ({
       onClick={onClick} // CORRECCIÓN: Pasamos el onClick al elemento <button> real
     >
       {icon}
-      {notification && <span style={styles.notificationDot}></span>}
+      {typeof (badgeCount) !== 'undefined' && badgeCount! > 0 ? (
+        <span style={styles.notificationDot}>{badgeCount}</span>
+      ) : (
+        notification && <span style={styles.notificationDot}></span>
+      )}
     </button>
   );
 };

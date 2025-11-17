@@ -1,7 +1,8 @@
-'use client';
+ 'use client';
 
-import React from "react";
+import React from 'react';
 import MainLayout from '../../components/layout/MainLayoutNext';
+import { theme } from '../../styles/theme';
 
 interface Movimiento {
   timestamp: string;
@@ -73,59 +74,47 @@ export default function AuditPage() {
 
   const getTipoColor = (tipo: string) => {
     switch (tipo) {
-      case "Entrada":
-        return "bg-green-100 text-green-800";
-      case "Salida":
-        return "bg-red-100 text-red-800";
-      case "Reserva":
-        return "bg-blue-100 text-blue-800";
-      case "Ajuste":
-        return "bg-yellow-100 text-yellow-800";
-      case "Liberacion":
-        return "bg-purple-100 text-purple-800";
+      case 'Entrada':
+        return { background: 'rgba(74, 222, 128, 0.12)', color: theme.colors.success };
+      case 'Salida':
+        return { background: 'rgba(248, 113, 113, 0.08)', color: theme.colors.danger };
+      case 'Reserva':
+        return { background: 'rgba(59, 130, 246, 0.08)', color: theme.colors.primary };
+      case 'Ajuste':
+        return { background: 'rgba(251, 191, 36, 0.08)', color: theme.colors.warning };
+      case 'Liberacion':
+        return { background: 'rgba(124, 92, 255, 0.08)', color: theme.colors.primary };
       default:
-        return "bg-gray-100 text-gray-800";
+        return { background: 'rgba(255,255,255,0.02)', color: theme.colors.textSecondary };
     }
   };
 
   const getCambioColor = (cambio: number) => {
-    return cambio > 0 ? "text-green-600" : "text-red-600";
+    return cambio > 0 ? theme.colors.success : theme.colors.danger;
   };
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div style={{ display: 'block', gap: theme.spacing.lg }}>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Auditoría</h1>
-          <p className="text-gray-600">Registro de movimientos de stock</p>
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 700, color: theme.colors.textPrimary }}>Auditoría</h1>
+          <p style={{ color: theme.colors.textSecondary }}>Registro de movimientos de stock</p>
         </div>
 
         {/* Filtros */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div style={{ backgroundColor: theme.colors.surface, padding: theme.spacing.lg, borderRadius: theme.borderRadius.lg, boxShadow: theme.shadows.sm, border: `1px solid ${theme.colors.border}` }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: theme.spacing.md }}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Fecha desde
-              </label>
-              <input
-                type="date"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+              <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 600, color: theme.colors.textSecondary, marginBottom: '8px' }}>Fecha desde</label>
+              <input type="date" style={{ width: '100%', padding: '8px', borderRadius: theme.borderRadius.sm, border: `1px solid ${theme.colors.border}`, background: theme.colors.background, color: theme.colors.textPrimary }} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Fecha hasta
-              </label>
-              <input
-                type="date"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+              <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 600, color: theme.colors.textSecondary, marginBottom: '8px' }}>Fecha hasta</label>
+              <input type="date" style={{ width: '100%', padding: '8px', borderRadius: theme.borderRadius.sm, border: `1px solid ${theme.colors.border}`, background: theme.colors.background, color: theme.colors.textPrimary }} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tipo de movimiento
-              </label>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 600, color: theme.colors.textSecondary, marginBottom: '8px' }}>Tipo de movimiento</label>
+              <select style={{ width: '100%', padding: '8px', borderRadius: theme.borderRadius.sm, border: `1px solid ${theme.colors.border}`, background: theme.colors.background, color: theme.colors.textPrimary }}>
                 <option value="">Todos</option>
                 <option value="Entrada">Entrada</option>
                 <option value="Salida">Salida</option>
@@ -135,81 +124,45 @@ export default function AuditPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Usuario
-              </label>
-              <input
-                type="text"
-                placeholder="Filtrar por usuario"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+              <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 600, color: theme.colors.textSecondary, marginBottom: '8px' }}>Usuario</label>
+              <input type="text" placeholder="Filtrar por usuario" style={{ width: '100%', padding: '8px', borderRadius: theme.borderRadius.sm, border: `1px solid ${theme.colors.border}`, background: theme.colors.background, color: theme.colors.textPrimary }} />
             </div>
           </div>
-          <div className="mt-4 flex justify-end">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-              Aplicar Filtros
-            </button>
+          <div style={{ marginTop: theme.spacing.md, display: 'flex', justifyContent: 'flex-end' }}>
+            <button style={{ background: theme.colors.primary, color: theme.colors.textOnPrimary, padding: '8px 12px', borderRadius: theme.borderRadius.md, border: 'none' }}>Aplicar Filtros</button>
           </div>
         </div>
 
         {/* Tabla de movimientos */}
-        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+        <div style={{ backgroundColor: theme.colors.surface, borderRadius: theme.borderRadius.lg, boxShadow: theme.shadows.sm, border: `1px solid ${theme.colors.border}`, overflow: 'hidden' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', color: theme.colors.textPrimary }}>
+              <thead style={{ backgroundColor: theme.colors.darkBgSecondary }}>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Fecha y Hora
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Producto
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tipo
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Cambio
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Usuario
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Motivo
-                  </th>
+                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: 700, color: theme.colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Fecha y Hora</th>
+                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: 700, color: theme.colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Producto</th>
+                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: 700, color: theme.colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Tipo</th>
+                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: 700, color: theme.colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cambio</th>
+                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: 700, color: theme.colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Usuario</th>
+                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: 700, color: theme.colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Motivo</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody>
                 {movimientos.map((movimiento, index) => (
-                  <tr key={index} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {movimiento.timestamp}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                  <tr key={index} style={{ borderBottom: `1px solid ${theme.colors.border}`, backgroundColor: index % 2 === 0 ? theme.colors.surface : theme.colors.darkBg }}>
+                    <td style={{ padding: '12px', color: theme.colors.textSecondary }}>{movimiento.timestamp}</td>
+                    <td style={{ padding: '12px' }}>
                       <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {movimiento.producto}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {movimiento.sku}
-                        </div>
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: theme.colors.textPrimary }}>{movimiento.producto}</div>
+                        <div style={{ fontSize: '13px', color: theme.colors.textSecondary }}>{movimiento.sku}</div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getTipoColor(movimiento.tipo)}`}>
-                        {movimiento.tipo}
-                      </span>
+                    <td style={{ padding: '12px' }}>
+                      <span style={{ padding: '4px 10px', borderRadius: '6px', fontSize: '13px', fontWeight: 600, background: getTipoColor(movimiento.tipo).background, color: getTipoColor(movimiento.tipo).color }}>{movimiento.tipo}</span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`text-sm font-medium ${getCambioColor(movimiento.cambio)}`}>
-                        {movimiento.cambio > 0 ? '+' : ''}{movimiento.cambio}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {movimiento.usuario}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {movimiento.motivo}
-                    </td>
+                    <td style={{ padding: '12px', color: getCambioColor(movimiento.cambio), fontWeight: 600 }}>{movimiento.cambio > 0 ? '+' : ''}{movimiento.cambio}</td>
+                    <td style={{ padding: '12px', color: theme.colors.textSecondary }}>{movimiento.usuario}</td>
+                    <td style={{ padding: '12px', color: theme.colors.textSecondary }}>{movimiento.motivo}</td>
                   </tr>
                 ))}
               </tbody>
@@ -218,27 +171,15 @@ export default function AuditPage() {
         </div>
 
         {/* Paginación */}
-        <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-          <div className="flex justify-between items-center">
-            <div className="text-sm text-gray-700">
-              Mostrando 1 a 6 de 342 movimientos
-            </div>
-            <div className="flex gap-2">
-              <button className="px-3 py-1 border border-gray-300 rounded text-sm">
-                Anterior
-              </button>
-              <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm">
-                1
-              </button>
-              <button className="px-3 py-1 border border-gray-300 rounded text-sm">
-                2
-              </button>
-              <button className="px-3 py-1 border border-gray-300 rounded text-sm">
-                3
-              </button>
-              <button className="px-3 py-1 border border-gray-300 rounded text-sm">
-                Siguiente
-              </button>
+        <div style={{ backgroundColor: theme.colors.surface, padding: '12px', borderTop: `1px solid ${theme.colors.border}`, borderRadius: `0 0 ${theme.borderRadius.lg} ${theme.borderRadius.lg}` }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: '14px', color: theme.colors.textSecondary }}>Mostrando 1 a 6 de 342 movimientos</div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button style={{ padding: '6px 10px', border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.sm, background: 'transparent', color: theme.colors.textPrimary }}>Anterior</button>
+              <button style={{ padding: '6px 10px', borderRadius: theme.borderRadius.sm, background: theme.colors.primary, color: theme.colors.textOnPrimary }}>1</button>
+              <button style={{ padding: '6px 10px', border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.sm, background: 'transparent', color: theme.colors.textPrimary }}>2</button>
+              <button style={{ padding: '6px 10px', border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.sm, background: 'transparent', color: theme.colors.textPrimary }}>3</button>
+              <button style={{ padding: '6px 10px', border: `1px solid ${theme.colors.border}`, borderRadius: theme.borderRadius.sm, background: 'transparent', color: theme.colors.textPrimary }}>Siguiente</button>
             </div>
           </div>
         </div>

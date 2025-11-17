@@ -7,7 +7,7 @@ import { theme } from '../../styles/theme';
 
 interface SidebarLinkProps {
   to: string;
-  icon: string;
+  icon?: React.ReactNode;
   children: React.ReactNode;
 }
 
@@ -64,7 +64,7 @@ export const SidebarLink: React.FC<SidebarLinkProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <span style={styles.icon}>{icon}</span>
+      {icon ? <span style={styles.icon}>{icon}</span> : null}
       {children}
     </Link>
   );

@@ -18,6 +18,7 @@ import {
 import { Line, Doughnut, Bar } from "react-chartjs-2";
 import { FaBox, FaChartLine, FaShoppingCart, FaWarehouse } from "react-icons/fa";
 import MainLayout from '../../components/layout/MainLayoutNext';
+import { theme } from '../../styles/theme';
 
 ChartJS.register(
   ArcElement,
@@ -149,9 +150,9 @@ export default function DashboardPage() {
   };
 
   const StatCard = ({ icon: Icon, title, value, color }: any) => (
-    <div className="bg-white p-6 rounded-lg shadow-sm border">
-      <div className="flex items-center">
-        <div className={`p-3 rounded-lg ${color}`}>
+    <div style={{ backgroundColor: theme.colors.surface, padding: theme.spacing.lg, borderRadius: theme.borderRadius.lg, boxShadow: theme.shadows.sm, border: `1px solid ${theme.colors.border}` }}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div style={{ padding: '12px', borderRadius: theme.borderRadius.md, background: color }}>
           <Icon className="text-white text-xl" />
         </div>
         <div className="ml-4">
@@ -164,45 +165,25 @@ export default function DashboardPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div style={{ display: 'block', gap: theme.spacing.lg }}>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">Resumen general del inventario</p>
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 700, color: theme.colors.textPrimary }}>Dashboard</h1>
+          <p style={{ color: theme.colors.textSecondary }}>Resumen general del inventario</p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard
-            icon={FaBox}
-            title="Total Productos"
-            value={stats.totalProductos}
-            color="bg-blue-500"
-          />
-          <StatCard
-            icon={FaWarehouse}
-            title="Stock Bajo"
-            value={stats.stockBajo}
-            color="bg-yellow-500"
-          />
-          <StatCard
-            icon={FaShoppingCart}
-            title="Ventas del Mes"
-            value={stats.ventasMes}
-            color="bg-green-500"
-          />
-          <StatCard
-            icon={FaChartLine}
-            title="Almacenes"
-            value={stats.almacenes}
-            color="bg-purple-500"
-          />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: theme.spacing.md }}>
+          <StatCard icon={FaBox} title="Total Productos" value={stats.totalProductos} color={theme.colors.primary} />
+          <StatCard icon={FaWarehouse} title="Stock Bajo" value={stats.stockBajo} color={theme.colors.warning} />
+          <StatCard icon={FaShoppingCart} title="Ventas del Mes" value={stats.ventasMes} color={theme.colors.success} />
+          <StatCard icon={FaChartLine} title="Almacenes" value={stats.almacenes} color={theme.colors.primary} />
         </div>
 
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Sales Chart */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="text-lg font-semibold mb-4">Ventas Mensuales</h3>
+          <div style={{ backgroundColor: theme.colors.surface, padding: theme.spacing.lg, borderRadius: theme.borderRadius.lg, boxShadow: theme.shadows.sm, border: `1px solid ${theme.colors.border}` }}>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: theme.spacing.sm, color: theme.colors.textPrimary }}>Ventas Mensuales</h3>
             <div style={{ height: '250px' }}>
               <Line
                 data={ventasMensuales}
@@ -233,9 +214,9 @@ export default function DashboardPage() {
           </div>
 
           {/* Stock Distribution */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="text-lg font-semibold mb-4">Distribución por Categorías</h3>
-            <div style={{ height: '250px' }} className="flex justify-center">
+          <div style={{ backgroundColor: theme.colors.surface, padding: theme.spacing.lg, borderRadius: theme.borderRadius.lg, boxShadow: theme.shadows.sm, border: `1px solid ${theme.colors.border}` }}>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: theme.spacing.sm, color: theme.colors.textPrimary }}>Distribución por Categorías</h3>
+            <div style={{ height: '250px', display: 'flex', justifyContent: 'center' }}>
               <Doughnut
                 data={categoriasStock}
                 options={{
@@ -253,8 +234,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Comparison Chart */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <h3 className="text-lg font-semibold mb-4">Comparación Ventas vs Compras</h3>
+        <div style={{ backgroundColor: theme.colors.surface, padding: theme.spacing.lg, borderRadius: theme.borderRadius.lg, boxShadow: theme.shadows.sm, border: `1px solid ${theme.colors.border}` }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: theme.spacing.sm, color: theme.colors.textPrimary }}>Comparación Ventas vs Compras</h3>
           <div style={{ height: '300px' }}>
             <Line
               data={ventasCompras}
@@ -286,8 +267,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Popular Products */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <h3 className="text-lg font-semibold mb-4">Productos Más Populares</h3>
+        <div style={{ backgroundColor: theme.colors.surface, padding: theme.spacing.lg, borderRadius: theme.borderRadius.lg, boxShadow: theme.shadows.sm, border: `1px solid ${theme.colors.border}` }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: theme.spacing.sm, color: theme.colors.textPrimary }}>Productos Más Populares</h3>
           <div style={{ height: '300px' }}>
             <Bar
               data={productosPopulares}

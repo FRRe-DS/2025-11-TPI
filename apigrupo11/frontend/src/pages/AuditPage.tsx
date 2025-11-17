@@ -1,5 +1,6 @@
 // src/pages/AuditPage.tsx
 import React from "react";
+import { theme } from '../styles/theme';
 
 interface Movimiento {
   timestamp: string;
@@ -78,27 +79,27 @@ const AuditPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: "2rem", backgroundColor: "#f8fafc", minHeight: "100vh" }}>
-      <h1 style={{ fontSize: "30px", fontWeight: "700", color: "#1a1a1a" }}>
+    <div style={{ padding: '2rem', backgroundColor: theme.colors.background, minHeight: '100vh' }}>
+      <h1 style={{ fontSize: '30px', fontWeight: 700, color: theme.colors.textPrimary }}>
         Gestión de Auditoría
       </h1>
-      <p style={{ marginTop: "1rem", color: "#444" }}>
+      <p style={{ marginTop: '1rem', color: theme.colors.textSecondary }}>
         Lista de movimientos recientes del stock.
       </p>
 
-      <div style={{ marginTop: "2rem", overflowX: "auto" }}>
+      <div style={{ marginTop: '2rem', overflowX: 'auto' }}>
         <table
           style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            backgroundColor: "#ffffff",
-            boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-            borderRadius: "10px",
-            overflow: "hidden",
-            color: "#222", // color base de texto
+            width: '100%',
+            borderCollapse: 'collapse',
+            backgroundColor: theme.colors.surface,
+            boxShadow: theme.shadows.sm,
+            borderRadius: '10px',
+            overflow: 'hidden',
+            color: theme.colors.textPrimary,
           }}
         >
-          <thead style={{ backgroundColor: "#e8ecef", color: "#1a1a1a" }}>
+          <thead style={{ backgroundColor: theme.colors.darkBgSecondary, color: theme.colors.textPrimary }}>
             <tr>
               <th style={{ padding: "12px" }}>Timestamp</th>
               <th style={{ padding: "12px" }}>Producto (SKU)</th>
@@ -113,23 +114,23 @@ const AuditPage: React.FC = () => {
               <tr
                 key={index}
                 style={{
-                  borderBottom: "1px solid #ddd",
-                  backgroundColor: index % 2 === 0 ? "#fdfdfd" : "#f7f9fa",
+                  borderBottom: `1px solid ${theme.colors.border}`,
+                  backgroundColor: index % 2 === 0 ? theme.colors.surface : theme.colors.darkBg,
                 }}
               >
-                <td style={{ padding: "10px 12px", color: "#2c3e50" }}>{mov.timestamp}</td>
-                <td style={{ padding: "10px 12px", fontWeight: "600", color: "#2c3e50" }}>
-                  {mov.producto}{" "}
-                  <span style={{ color: "#888", fontSize: "13px" }}>({mov.sku})</span>
+                <td style={{ padding: '10px 12px', color: theme.colors.textSecondary }}>{mov.timestamp}</td>
+                <td style={{ padding: '10px 12px', fontWeight: 600, color: theme.colors.textPrimary }}>
+                  {mov.producto}{' '}
+                  <span style={{ color: theme.colors.textSecondary, fontSize: '13px' }}>({mov.sku})</span>
                 </td>
                 <td style={{ padding: "10px 12px" }}>
                   <span
                     style={{
                       backgroundColor: getTipoColor(mov.tipo),
-                      color: "white",
-                      padding: "4px 10px",
-                      borderRadius: "6px",
-                      fontSize: "13px",
+                      color: theme.colors.textOnPrimary,
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      fontSize: '13px',
                       fontWeight: 600,
                     }}
                   >
@@ -138,15 +139,15 @@ const AuditPage: React.FC = () => {
                 </td>
                 <td
                   style={{
-                    padding: "10px 12px",
-                    color: mov.cambio > 0 ? "#27ae60" : "#e74c3c",
-                    fontWeight: "600",
+                    padding: '10px 12px',
+                    color: mov.cambio > 0 ? theme.colors.success : theme.colors.danger,
+                    fontWeight: 600,
                   }}
                 >
                   {mov.cambio > 0 ? `+${mov.cambio}` : mov.cambio}
                 </td>
-                <td style={{ padding: "10px 12px", color: "#2c3e50" }}>{mov.usuario}</td>
-                <td style={{ padding: "10px 12px", color: "#2c3e50" }}>{mov.motivo}</td>
+                <td style={{ padding: '10px 12px', color: theme.colors.textSecondary }}>{mov.usuario}</td>
+                <td style={{ padding: '10px 12px', color: theme.colors.textSecondary }}>{mov.motivo}</td>
               </tr>
             ))}
           </tbody>
