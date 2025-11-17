@@ -63,9 +63,9 @@ export const SidebarNext: React.FC = () => {
   return (
     <aside style={styles.sidebar}>
       <nav style={styles.nav}>
+        <SidebarLinkNext to="/dashboard" icon={<FiHome />}>Dashboard</SidebarLinkNext>
         <SidebarLinkNext to="/inventario" icon={<FiBox />}>Inventario</SidebarLinkNext>
         <SidebarLinkNext to="/auditoria" icon={<FiSearch />}>Auditoría</SidebarLinkNext>
-        <SidebarLinkNext to="/dashboard" icon={<FiHome />}>Dashboard</SidebarLinkNext>
       </nav>
 
       <div style={styles.logoutSection}>
