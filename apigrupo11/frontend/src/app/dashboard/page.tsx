@@ -173,7 +173,7 @@ export default function DashboardPage() {
 
         {/* Stats Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: theme.spacing.md }}>
-          <StatCard icon={FaBox} title="Total Productos" value={stats.totalProductos} color={theme.colors.primary} />
+          <StatCard icon={FaBox} title="Total Productos" value={stats.totalProductos} color={theme.colors.secondary} />
           <StatCard icon={FaWarehouse} title="Stock Bajo" value={stats.stockBajo} color={theme.colors.warning} />
           <StatCard icon={FaShoppingCart} title="Ventas del Mes" value={stats.ventasMes} color={theme.colors.success} />
           <StatCard icon={FaChartLine} title="Almacenes" value={stats.almacenes} color={theme.colors.primary} />
@@ -298,29 +298,28 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Productos desde API */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <div className="p-6 rounded-lg shadow-sm" style={{ backgroundColor: theme.colors.surface, padding: theme.spacing.lg, borderRadius: theme.borderRadius.lg, boxShadow: theme.shadows.sm, border: `1px solid ${theme.colors.border}` }}>
           <h3 className="text-lg font-semibold mb-4">Productos Recientes (API)</h3>
           {loadingProductos ? (
             <div className="text-center py-8 text-gray-500">Cargando productos...</div>
           ) : productos.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y">
+                <thead>
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-100 uppercase tracking-wider">Nombre</th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-100 uppercase tracking-wider">Descripción</th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-100 uppercase tracking-wider">Precio</th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-100 uppercase tracking-wider">Stock</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-primary divide-y divide-gray-200">
                   {productos.map((producto) => (
                     <tr key={producto.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{producto.nombre}</td>
-                      <td className="px-6 py-4 text-sm text-gray-500">{producto.descripcion}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${producto.precio}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{producto.stockDisponible}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-200">{producto.nombre}</td>
+                      <td className="px-6 py-4 text-sm text-gray-400">{producto.descripcion}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${producto.precio}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{producto.stockDisponible}</td>
                     </tr>
                   ))}
                 </tbody>
