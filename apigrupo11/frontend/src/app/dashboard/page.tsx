@@ -1,6 +1,8 @@
 'use client';
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -30,6 +32,50 @@ ChartJS.register(
 );
 
 export default function DashboardPage() {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [productos, setProductos] = useState<any[]>([]);
+  const [loadingProductos, setLoadingProductos] = useState(true);
+
+  // Check for token refresh error
+  useEffect(() => {
+    if ((session as any)?.error === 'RefreshAccessTokenError') {
+      signOut({ callbackUrl: '/login' });
+    }
+  }, [session]);
+
+  useEffect(() => {
+    const fetchProductos = async () => {
+      if (!session?.accessToken) {
+        setLoadingProductos(false);
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:3000/api/productos?page=1&limit=5', {
+          headers: {
+            'Authorization': `Bearer ${session.accessToken}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Productos fetched:', data);
+          setProductos(data.data || []);
+        } else if (response.status === 401) {
+          // Token expired, sign out
+          signOut({ callbackUrl: '/login' });
+        }
+      } catch (error) {
+        console.error('Error fetching productos:', error);
+      } finally {
+        setLoadingProductos(false);
+      }
+    };
+
+    fetchProductos();
+  }, [session]);
+
   // ===== Datos de ejemplo =====
   const ventasMensuales = {
     labels: ["Ene", "Feb", "Mar", "Abr", "May", "Jun"],
@@ -269,6 +315,41 @@ export default function DashboardPage() {
               }}
             />
           </div>
+        </div>
+
+        {/* Productos desde API */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <h3 className="text-lg font-semibold mb-4">Productos Recientes (API)</h3>
+          {loadingProductos ? (
+            <div className="text-center py-8 text-gray-500">Cargando productos...</div>
+          ) : productos.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {productos.map((producto) => (
+                    <tr key={producto.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{producto.nombre}</td>
+                      <td className="px-6 py-4 text-sm text-gray-500">{producto.descripcion}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${producto.precio}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{producto.stockDisponible}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              {session ? 'No hay productos disponibles' : 'Inicia sesión para ver los productos'}
+            </div>
+          )}
         </div>
       </div>
     </MainLayout>
