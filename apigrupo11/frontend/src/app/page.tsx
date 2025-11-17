@@ -7,8 +7,8 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Redirigir automáticamente a Inventario
-    router.push('/inventario');
+    // Redirigir automáticamente al login
+    router.push('/login');
   }, [router]);
 
   return (

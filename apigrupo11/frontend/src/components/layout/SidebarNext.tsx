@@ -1,19 +1,26 @@
 'use client';
 
 import type React from 'react';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation'; // <-- 1. Ya no lo necesitamos para el logout
+import { signOut } from 'next-auth/react'; // <-- 2. Importamos signOut
 import { theme } from '../../styles/theme';
 import { SidebarLinkNext } from './SidebarLinkNext';
 import { FiHome, FiBox, FiSearch, FiLogOut } from 'react-icons/fi';
 
 export const SidebarNext: React.FC = () => {
-  const router = useRouter();
+  // const router = useRouter(); // <-- 1. Ya no lo necesitamos
 
   const handleLogout = () => {
-    router.push('/login');
+    // 3. Llamamos a signOut()
+    // Esto destruye la sesión y nos redirige a la URL
+    // que le pasemos en 'callbackUrl'.
+    signOut({
+      callbackUrl: '/login',
+    });
   };
 
   const styles: { [key: string]: React.CSSProperties } = {
+    // ... (Todos tus estilos están perfectos) ...
     sidebar: {
       width: '260px',
       background: `linear-gradient(180deg, ${theme.colors.darkBg} 0%, ${theme.colors.darkBgSecondary} 100%)`,
@@ -75,7 +82,7 @@ export const SidebarNext: React.FC = () => {
             e.currentTarget.style.borderColor = theme.colors.darkBorder;
             e.currentTarget.style.color = theme.colors.textSecondary;
           }}
-          onClick={handleLogout}
+          onClick={handleLogout} // <-- Llama a la nueva función
         >
           <FiLogOut style={{ marginRight: theme.spacing.sm }} />
           <span>Cerrar Sesión</span>

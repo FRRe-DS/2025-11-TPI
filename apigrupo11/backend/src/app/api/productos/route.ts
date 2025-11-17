@@ -4,20 +4,57 @@ import { ProductoInput } from "@/lib/types";
 import { badRequest } from "../_utils";
 import { requireAuth } from "@/lib/authMiddleware";
 
+// OPTIONS /api/productos
+export async function OPTIONS(req: NextRequest) {
+  return NextResponse.json({}, {
+    headers: {
+      'Access-Control-Allow-Origin': 'http://localhost:5173',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    }
+  });
+}
+
 // GET /api/productos
 export async function GET(req: NextRequest) {
   const authResult = await requireAuth(req, { requiredScopes: ['productos:read'] });
   if (authResult.error) return authResult.error;
 
   try {
-    const { searchParams } = new URL(req.url);
+    const searchParams = req.nextUrl.searchParams;
     const page = Number(searchParams.get("page") || "1");
     const limit = Number(searchParams.get("limit") || "20");
     const q = searchParams.get("q") || undefined;
     const categoriaId = searchParams.get("categoriaId") ? Number(searchParams.get("categoriaId")) : undefined;
 
-    const list = await productoDB.list({ page, limit, q, categoriaId });
-    return NextResponse.json(list);
+    const result = await productoDB.list({ page, limit, q, categoriaId });
+    
+    // Build query params for pagination links
+    const buildUrl = (pageNum: number) => {
+      const params = new URLSearchParams();
+      params.set("page", pageNum.toString());
+      params.set("limit", limit.toString());
+      if (q) params.set("q", q);
+      if (categoriaId) params.set("categoriaId", categoriaId.toString());
+      return `http://localhost:3000/api/productos?${params.toString()}`;
+    };
+
+    const response = {
+      data: result.data,
+      pagination: {
+        ...result.pagination,
+        previous: page > 1 ? buildUrl(page - 1) : null,
+        next: page < result.pagination.totalPages ? buildUrl(page + 1) : null
+      }
+    };
+    
+    return NextResponse.json(response, {
+      headers: {
+        'Access-Control-Allow-Origin': 'http://localhost:5173',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      }
+    });
   } catch (error) {
     console.error('Error fetching productos:', error);
     return NextResponse.json(
@@ -47,7 +84,14 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await productoDB.create(body);
-    return NextResponse.json(result.resp, { status: 201 });
+    return NextResponse.json(result.resp, { 
+      status: 201,
+      headers: {
+        'Access-Control-Allow-Origin': 'http://localhost:5173',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      }
+    });
   } catch (error) {
     console.error('Error creating producto:', error);
     return NextResponse.json(
