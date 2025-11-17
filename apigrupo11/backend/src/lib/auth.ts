@@ -79,12 +79,17 @@ export class KeycloakAuth {
       // Verificar el JWT
       const { payload } = await jwtVerify(token, publicKey, {
         issuer: this.config.issuer,
-        // Para client_credentials, no hay audience, usamos azp (authorized party)
-        // audience: this.config.clientId
+        // No validamos audience aquí porque puede variar según el tipo de token
       });
 
-      // Verificar que el token pertenece al cliente correcto
-      if (payload.azp !== this.config.clientId && payload.aud !== this.config.clientId) {
+      // Verificar que el token pertenece al cliente correcto (azp para client_credentials, aud para otros)
+      const clientId = payload.azp || payload.aud;
+      if (Array.isArray(clientId)) {
+        // Si aud es un array, verificar que nuestro cliente esté incluido
+        if (!clientId.includes(this.config.clientId)) {
+          throw new Error('Token not issued for this client');
+        }
+      } else if (clientId !== this.config.clientId) {
         throw new Error('Token not issued for this client');
       }
 

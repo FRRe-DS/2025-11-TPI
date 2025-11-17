@@ -1,127 +1,91 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react'; // Eliminamos useState, ya no es necesario
 import { useRouter } from 'next/navigation';
+import { useSession, signIn } from 'next-auth/react'; // <-- 1. Importamos hooks
 import { theme } from '../../styles/theme';
 
 export default function LoginPage() {
-  const [credentials, setCredentials] = useState({
-    username: '',
-    password: '',
-  });
   const router = useRouter();
+  const { data: session, status } = useSession(); // <-- 2. Obtenemos el estado de la sesión
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    router.push('/dashboard');
+  // --- Lógica de Sesión ---
+  React.useEffect(() => {
+    // Si la sesión está "authenticated", redirigimos al dashboard
+    if (status === 'authenticated') {
+      router.push('/dashboard');
+    }
+  }, [status, router]);
+
+  // Si está cargando, mostramos un loader
+  if (status === 'loading') {
+    return <div>Cargando...</div>; // Puedes estilizar esto
+  }
+
+  // --- Función de Login ---
+  // Esta función ahora es mucho más simple
+  const handleLogin = () => {
+    // 3. Llamamos a signIn y le decimos que use el proveedor "keycloak"
+    signIn('keycloak', {
+      // Opcional: A dónde volver después del login
+      callbackUrl: '/dashboard', 
+    });
   };
 
-  return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        minHeight: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        background: theme.colors.background,
-        color: theme.colors.textPrimary,
-        fontFamily: theme.fonts.body,
-      }}
-    >
+  // Si no está autenticado, mostramos tu página de login
+  // pero con la lógica del botón cambiada.
+  if (status === 'unauthenticated') {
+    return (
       <div
         style={{
-          background: theme.colors.surface,
+          /* ... (Tu estilo de contenedor principal se mantiene) ... */
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          minHeight: '100vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          background: theme.colors.background,
           color: theme.colors.textPrimary,
-          borderRadius: theme.borderRadius.lg,
-          padding: theme.spacing.xl,
-          width: '100%',
-          maxWidth: '400px',
-          boxShadow: theme.shadows.lg,
+          fontFamily: theme.fonts.body,
         }}
       >
-        <h1
+        <div
           style={{
-            fontSize: theme.fontSizes.h1,
-            fontWeight: '700',
-            textAlign: 'center',
-            marginBottom: theme.spacing.lg,
-            color: theme.colors.primary,
+            /* ... (Tu estilo de caja de login se mantiene) ... */
+            background: theme.colors.surface,
+            color: theme.colors.textPrimary,
+            borderRadius: theme.borderRadius.lg,
+            padding: theme.spacing.xl,
+            width: '100%',
+            maxWidth: '400px',
+            boxShadow: theme.shadows.lg,
           }}
         >
-          Stock Manager
-        </h1>
-        
-        <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: theme.spacing.md }}>
-            <label
-              style={{
-                display: 'block',
-                marginBottom: theme.spacing.sm,
-                fontWeight: '600',
-                fontSize: theme.fontSizes.body,
-                color: theme.colors.textPrimary,
-              }}
-            >
-              Usuario
-            </label>
-            <input
-              type="text"
-              value={credentials.username}
-              onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-              style={{
-                width: '100%',
-                padding: theme.spacing.md,
-                borderRadius: theme.borderRadius.md,
-                border: `1px solid ${theme.colors.border}`,
-                backgroundColor: theme.colors.background,
-                color: theme.colors.textPrimary,
-                fontSize: theme.fontSizes.body,
-                boxSizing: 'border-box',
-              }}
-              placeholder="Ingresa tu usuario"
-              required
-            />
-          </div>
+          <h1
+            style={{
+              /* ... (Tu estilo de H1 se mantiene) ... */
+              fontSize: theme.fontSizes.h1,
+              fontWeight: '700',
+              textAlign: 'center',
+              marginBottom: theme.spacing.lg,
+              color: theme.colors.primary,
+            }}
+          >
+            Stock Manager
+          </h1>
 
-          <div style={{ marginBottom: theme.spacing.lg }}>
-            <label
-              style={{
-                display: 'block',
-                marginBottom: theme.spacing.sm,
-                fontWeight: '600',
-                fontSize: theme.fontSizes.body,
-                color: theme.colors.textPrimary,
-              }}
-            >
-              Contraseña
-            </label>
-            <input
-              type="password"
-              value={credentials.password}
-              onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-              style={{
-                width: '100%',
-                padding: theme.spacing.md,
-                borderRadius: theme.borderRadius.md,
-                border: `1px solid ${theme.colors.border}`,
-                backgroundColor: theme.colors.background,
-                color: theme.colors.textPrimary,
-                fontSize: theme.fontSizes.body,
-                boxSizing: 'border-box',
-              }}
-              placeholder="Ingresa tu contraseña"
-              required
-            />
-          </div>
+          {/* 4. Eliminamos el formulario y los inputs */}
+          {/* Ya no capturamos usuario/contraseña aquí */}
 
           <button
-            type="submit"
+            type="button" // <-- Cambiado de "submit" a "button"
+            onClick={handleLogin} // <-- Llamamos a nuestra nueva función
             style={{
+              /* ... (Tu estilo de botón se mantiene) ... */
               width: '100%',
               padding: theme.spacing.md,
               borderRadius: theme.borderRadius.md,
@@ -134,27 +98,31 @@ export default function LoginPage() {
               transition: 'background-color 0.2s ease',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = theme.colors.primaryHover;
+              e.currentTarget.style.backgroundColor = theme.colors.primaryDark;
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = theme.colors.primary;
             }}
           >
-            Iniciar Sesión
+            Iniciar Sesión con Keycloak
           </button>
-        </form>
 
-        <div
-          style={{
-            textAlign: 'center',
-            marginTop: theme.spacing.lg,
-            fontSize: theme.fontSizes.small,
-            color: theme.colors.textSecondary,
-          }}
-        >
-          Sistema de Gestión de Inventario
+          <div
+            style={{
+              /* ... (Tu estilo de footer se mantiene) ... */
+              textAlign: 'center',
+              marginTop: theme.spacing.lg,
+              fontSize: theme.fontSizes.small,
+              color: theme.colors.textSecondary,
+            }}
+          >
+            Sistema de Gestión de Inventario
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  // Por defecto (mientras se determina el estado)
+  return null;
 }

@@ -1,0 +1,763 @@
+{
+  "realm": "ds-2025-realm",
+  "enabled": true,
+  "defaultDefaultClientScopes": [
+    "usuarios:read",
+    "usuarios:write",
+    "compras:read",
+    "compras:write",
+    "stock:read",
+    "stock:write",
+    "productos:read",
+    "productos:write",
+    "categorias:read",
+    "categorias:write",
+    "reservas:read",
+    "reservas:write",
+    "envios:read",
+    "envios:write"
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "compras-be",
+        "description": "Rol para backend de compras"
+      },
+      {
+        "name": "stock-be",
+        "description": "Rol para backend de stock"
+      },
+      {
+        "name": "logistica-be",
+        "description": "Rol para backend de logistica"
+      }
+    ]
+  },
+  "clientScopes": [
+    {
+      "name": "usuarios:read",
+      "description": "Scope que permite acceso de lectura a los usuarios",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles mapper usuarios:read",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "usuarios:write",
+      "description": "Scope que permite acceso de escritura a los usuarios",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles mapper usuarios:write",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "compras:read",
+      "description": "Scope que permite acceso de lectura a las compras",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles mapper compras:read",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "compras:write",
+      "description": "Scope que permite acceso de escritura a las compras",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles mapper compras:write",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "stock:read",
+      "description": "Scope que permite acceso de lectura al stock",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles mapper stock:read",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "stock:write",
+      "description": "Scope que permite acceso de escritura al stock",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles mapper stock:write",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "productos:read",
+      "description": "Scope que permite acceso de lectura a los productos",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles mapper productos:read",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "productos:write",
+      "description": "Scope que permite acceso de escritura a los productos",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles mapper productos:write",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "categorias:read",
+      "description": "Scope que permite acceso de lectura a las categorías",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles mapper categorias:read",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "categorias:write",
+      "description": "Scope que permite acceso de escritura a las categorías",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles mapper categorias:write",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "reservas:read",
+      "description": "Scope que permite acceso de lectura a las reservas",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles mapper reservas:read",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "reservas:write",
+      "description": "Scope que permite acceso de escritura a las reservas",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles mapper reservas:write",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "envios:read",
+      "description": "Scope que permite acceso de lectura a los envíos",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles mapper envios:read",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "envios:write",
+      "description": "Scope que permite acceso de escritura a los envíos",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles mapper envios:write",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "grupo-01",
+      "name": "Cliente del grupo 01",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "68230b9a-f540-4e16-9f56-19180f303676",
+      "redirectUris": [
+        "*"
+      ],
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect",
+      "defaultClientScopes": [
+        "productos:read"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "*"
+      }
+    },
+    {
+      "clientId": "grupo-02",
+      "name": "Cliente del grupo 02",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "58536bf8-8501-41c9-b411-786b6d654c25",
+      "baseUrl": "http://localhost:3000",
+      "rootUrl": "http://localhost:3000",
+      "adminUrl": "",
+      "redirectUris": [
+        "http://localhost:3000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000"
+      ],
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "protocol": "openid-connect",
+      "defaultClientScopes": [
+        "productos:read",
+        "productos:write"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "*"
+      },
+      "surrogateAuthRequired": false,
+      "alwaysDisplayInConsole": false,
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "publicClient": true,
+      "frontchannelLogout": false,
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true
+    },
+    {
+      "clientId": "grupo-03",
+      "name": "Cliente del grupo 03",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "21cd6616-6571-4ee7-be29-0f781f77c74e",
+      "redirectUris": [
+        "*"
+      ],
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect",
+      "defaultClientScopes": [
+        "usuarios:read",
+        "productos:read",
+        "envios:write",
+        "envios:read",
+        "reservas:read",
+        "reservas:write",
+        "stock:read",
+        "stock:write"
+      ]
+    },
+    {
+      "clientId": "grupo-04",
+      "name": "Cliente del grupo 04",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "6be1bec1-9472-499f-ab37-883d78f57829",
+      "redirectUris": [
+        "*"
+      ],
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "grupo-05",
+      "name": "Cliente del grupo 05",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "9e676dd4-2790-4191-9f1f-06c6c6fd71e5",
+      "redirectUris": [
+        "*"
+      ],
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "grupo-06",
+      "name": "Cliente del grupo 06",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "8dc00e75-ccea-4d1a-be3d-b586733e256c",
+      "redirectUris": [
+        "*"
+      ],
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect",
+      "defaultClientScopes": [
+        "usuarios:read",
+        "productos:read",
+        "envios:write",
+        "envios:read",
+        "reservas:read",
+        "reservas:write",
+        "stock:read",
+        "stock:write"
+      ]
+    },
+    {
+      "clientId": "grupo-07",
+      "name": "Cliente del grupo 07",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "",
+      "redirectUris": [
+        "*"
+      ],
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "grupo-08",
+      "name": "Cliente del grupo 08",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "248f42b5-7007-47d1-a94e-e8941f352f6f",
+      "redirectUris": [
+        "*"
+      ],
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "grupo-09",
+      "name": "Cliente del grupo 09",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "3a0ca5f2-00cc-4016-b7a2-7aad04eda3af",
+      "redirectUris": [
+        "*"
+      ],
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect",
+      "defaultClientScopes": [
+        "usuarios:read",
+        "productos:read",
+        "envios:write",
+        "envios:read",
+        "reservas:read",
+        "reservas:write",
+        "stock:read",
+        "stock:write"
+      ]
+    },
+    {
+      "clientId": "grupo-10",
+      "name": "Cliente del grupo 10",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "66ff9787-4fa5-46b3-b546-4ccbe604d233",
+      "redirectUris": [
+        "*"
+      ],
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "grupo-11",
+      "name": "Cliente del grupo 11",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "ef7f0900-8de5-46c0-b813-ce76d61e0158",
+      "redirectUris": [
+        "*"
+      ],
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "grupo-12",
+      "name": "Cliente del grupo 12",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "ebbd9f47-b6ff-4efe-9fdd-71651a87139c",
+      "redirectUris": [
+        "*"
+      ],
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect",
+      "defaultClientScopes": [
+        "usuarios:read",
+        "productos:read",
+        "envios:write",
+        "envios:read",
+        "reservas:read",
+        "reservas:write",
+        "stock:read",
+        "stock:write"
+      ]
+    },
+    {
+      "clientId": "grupo-13",
+      "name": "Cliente del grupo 13",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "404249de-18ba-403c-b45c-d82c446e2a2a",
+      "redirectUris": [
+        "*"
+      ],
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect"
+    }
+  ],
+  "users": [
+    {
+      "username": "service-account-grupo-01",
+      "enabled": true,
+      "serviceAccountClientId": "grupo-01",
+      "realmRoles": [
+        "compras-be"
+      ]
+    },
+    {
+      "username": "service-account-grupo-02",
+      "enabled": true,
+      "serviceAccountClientId": "grupo-02",
+      "realmRoles": [
+        "stock-be"
+      ]
+    },
+    {
+      "username": "service-account-grupo-03",
+      "enabled": true,
+      "serviceAccountClientId": "grupo-03",
+      "realmRoles": [
+        "logistica-be"
+      ]
+    },
+    {
+      "username": "service-account-grupo-04",
+      "enabled": true,
+      "serviceAccountClientId": "grupo-04",
+      "realmRoles": [
+        "compras-be"
+      ]
+    },
+    {
+      "username": "service-account-grupo-05",
+      "enabled": true,
+      "serviceAccountClientId": "grupo-05",
+      "realmRoles": [
+        "stock-be"
+      ]
+    },
+    {
+      "username": "service-account-grupo-06",
+      "enabled": true,
+      "serviceAccountClientId": "grupo-06",
+      "realmRoles": [
+        "logistica-be"
+      ]
+    },
+    {
+      "username": "service-account-grupo-07",
+      "enabled": true,
+      "serviceAccountClientId": "grupo-07",
+      "realmRoles": [
+        "compras-be"
+      ]
+    },
+    {
+      "username": "service-account-grupo-08",
+      "enabled": true,
+      "serviceAccountClientId": "grupo-08",
+      "realmRoles": [
+        "stock-be"
+      ]
+    },
+    {
+      "username": "service-account-grupo-09",
+      "enabled": true,
+      "serviceAccountClientId": "grupo-09",
+      "realmRoles": [
+        "logistica-be"
+      ]
+    },
+    {
+      "username": "service-account-grupo-10",
+      "enabled": true,
+      "serviceAccountClientId": "grupo-10",
+      "realmRoles": [
+        "compras-be"
+      ]
+    },
+    {
+      "username": "service-account-grupo-11",
+      "enabled": true,
+      "serviceAccountClientId": "grupo-11",
+      "realmRoles": [
+        "stock-be"
+      ]
+    },
+    {
+      "username": "service-account-grupo-12",
+      "enabled": true,
+      "serviceAccountClientId": "grupo-12",
+      "realmRoles": [
+        "logistica-be"
+      ]
+    },
+    {
+      "username": "service-account-grupo-13",
+      "enabled": true,
+      "serviceAccountClientId": "grupo-13",
+      "realmRoles": [
+        "compras-be"
+      ]
+    },
+    {
+      "id": "b55573fa-60ed-4a01-a218-8adcfa18384e",
+      "createdTimestamp": 1760555989656,
+      "username": "test-user",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": true,
+      "firstName": "Test User",
+      "lastName": "Verified",
+      "email": "test@gmail.com",
+      "credentials": [
+        {
+          "id": "5fd3431d-1fc8-40d0-99bb-5cc9f3fcf45e",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1760556005303,
+          "secretData": "{\"value\":\"aRhofYek4hgOTwfP+Aj3hS6S73cWl7qlKMMLQYcQQcU=\",\"salt\":\"hPTh2NF5pmBX5Kd32h72HA==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\",\"additionalParameters\":{}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "default-roles-ds-2025-realm"
+      ],
+      "notBefore": 0,
+      "groups": []
+    }
+  ]
+}

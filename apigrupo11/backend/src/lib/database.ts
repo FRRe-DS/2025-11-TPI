@@ -58,7 +58,7 @@ export const productoDB = {
     q?: string; 
     page?: number; 
     limit?: number; 
-  }): Promise<Producto[]> {
+  }): Promise<{ data: Producto[]; pagination: { page: number; limit: number; total: number; totalPages: number } }> {
     let baseQuery = `
       SELECT 
         p.id,
@@ -106,16 +106,36 @@ export const productoDB = {
     baseQuery += ' GROUP BY p.id, p.nombre, p.descripcion, p.precio, p.stock_disponible, p.peso_kg, p.dimensiones, p.ubicacion, p.imagenes';
     baseQuery += ' ORDER BY p.id';
 
+    // Get total count before pagination
+    const countQuery = `SELECT COUNT(DISTINCT p.id) as total FROM productos p
+      LEFT JOIN producto_categorias pc ON p.id = pc.producto_id
+      ${conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : ''}`;
+    const countResult = await query<{ total: string }>(countQuery, params.slice(0, paramIndex - 1));
+    const total = parseInt(countResult[0]?.total || '0');
+
     // Pagination
     const page = Math.max(1, filter?.page || 1);
     const limit = Math.min(100, Math.max(1, filter?.limit || 20));
     const offset = (page - 1) * limit;
+    const totalPages = Math.ceil(total / limit);
 
     baseQuery += ` LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
     params.push(limit, offset);
 
+    console.log('SQL Query:', baseQuery);
+    console.log('SQL Params:', params);
+
     const rows = await query<Producto>(baseQuery, params);
-    return rows;
+    
+    return {
+      data: rows,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages
+      }
+    };
   },
 
   // Get a single product by ID
