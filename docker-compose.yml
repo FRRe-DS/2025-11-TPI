@@ -13,7 +13,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./init-complete.sql:/docker-entrypoint-initdb.d/01-init.sql
       - ./apigrupo11/database/schema.sql:/docker-entrypoint-initdb.d/02-schema.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -59,9 +59,7 @@ services:
       - postgres
 
   backend:
-    build:
-      context: ./apigrupo11/backend
-      dockerfile: Dockerfile
+    image: ghcr.io/frre-ds/2025-grupo-11-backend-stock:8a131ddc68811ba1bc37846e4187893cbf0d928c
     container_name: backend
     environment:
       # Database
