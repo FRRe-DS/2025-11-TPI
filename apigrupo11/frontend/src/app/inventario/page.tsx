@@ -24,71 +24,27 @@ export default function InventoryPage() {
   const [overlayPos, setOverlayPos] = useState<{ left: number; top: number } | null>(null);
 
   useEffect(() => {
-    const mockProducts: IProducto[] = [
-      {
-        id: 1,
-        nombre: 'Laptop Pro 15',
-        descripcion: 'Laptop profesional de alto rendimiento',
-        precio: 1299.99,
-        stockDisponible: 25,
-        stockReservado: 5,
-        stockTotal: 30,
-        vendedorId: 1,
-        categoriaId: 1,
-        categoria: 'Electrónicos',
-        pesoKg: 2.1,
-        fechaCreacion: '2025-01-15T10:00:00Z',
-        fechaActualizacion: '2025-10-20T15:30:00Z',
-        imagenes: [],
-      },
-      {
-        id: 2,
-        nombre: 'Mouse Inalámbrico',
-        descripcion: 'Mouse ergonómico con conectividad Bluetooth',
-        precio: 45.99,
-        stockDisponible: 150,
-        stockReservado: 10,
-        stockTotal: 160,
-        vendedorId: 1,
-        categoriaId: 2,
-        categoria: 'Accesorios',
-        pesoKg: 0.12,
-        fechaCreacion: '2025-02-01T09:00:00Z',
-        fechaActualizacion: '2025-10-18T11:45:00Z',
-        imagenes: [],
-      },
-      {
-        id: 3,
-        nombre: 'Cable USB-C 1m',
-        descripcion: 'Cable de carga y datos',
-        precio: 9.99,
-        stockDisponible: 320,
-        stockReservado: 0,
-        stockTotal: 320,
-        vendedorId: 1,
-        categoriaId: 2,
-        categoria: 'Accesorios',
-        pesoKg: 0.02,
-        fechaCreacion: '2025-03-05T09:00:00Z',
-        fechaActualizacion: '2025-10-10T09:45:00Z',
-        imagenes: [],
-      },
-    ];
-
-    setTimeout(() => {
+    const fetchProductos = async () => {
       try {
-        const raw = localStorage.getItem('local_products_v1');
-        if (raw) {
-          setProductos(JSON.parse(raw));
-          setLoading(false);
-          return;
-        }
-      } catch (err) {
-        console.warn('No se pudo leer localStorage productos', err);
+        const res = await fetch("https://localhost:3000/api/producto", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          cache: "no-store"
+        });
+
+        if (!res.ok) throw new Error("Error al obtener productos");
+
+        const data: IProducto[] = await res.json();
+        setProductos(data);
+      } catch (error) {
+        console.error("Error:", error);
+        toast.error("No se pudo cargar el inventario");
+      } finally {
+        setLoading(false);
       }
-      setProductos(mockProducts);
-      setLoading(false);
-    }, 600);
+    };
+
+    fetchProductos();
   }, []);
 
   const categories = useMemo(() => {
@@ -121,32 +77,47 @@ export default function InventoryPage() {
     return filtered.slice(start, start + pageSize);
   }, [filtered, page, pageSize]);
 
-  const persistProducts = (next: IProducto[]) => {
+
+  /*Crea un producto*/
+  const handleAddProduct = async (product: IProducto) => {
     try {
-      localStorage.setItem('local_products_v1', JSON.stringify(next));
-    } catch (err) {
-      console.warn('Error guardando productos en localStorage', err);
+      const res = await fetch("https://localhost:3000/api/producto", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(product)
+      });
+
+      if (!res.ok) throw new Error("Error al crear producto");
+
+      const saved = await res.json();
+
+      setProductos((prev) => [saved, ...prev]);
+      toast.success(`Producto "${saved.nombre}" agregado`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al agregar producto");
+    }
+
+    setShowAddForm(false);
+  };
+
+  /*Elimina un producto*/
+  const handleDeleteProduct = async (id: number) => {
+    try {
+      const res = await fetch(`https://localhost:3000/api/producto/${id}`, {
+        method: "DELETE"
+      });
+
+      if (!res.ok) throw new Error("Error al eliminar producto");
+
+      setProductos(prev => prev.filter(p => p.id !== id));
+      toast.success("Producto eliminado");
+    } catch (error) {
+      console.error(error);
+      toast.error("No se pudo eliminar el producto");
     }
   };
 
-  const handleAddProduct = (product: IProducto) => {
-    setProductos((prev) => {
-      const next = [product, ...prev];
-      persistProducts(next);
-      return next;
-    });
-    setShowAddForm(false);
-    toast.success(`Producto "${product.nombre}" agregado`);
-  };
-
-  const handleDeleteProduct = (id: number) => {
-    setProductos((prev) => {
-      const next = prev.filter((p) => p.id !== id);
-      persistProducts(next);
-      return next;
-    });
-    toast.success('Producto eliminado');
-  };
 
   return (
     <MainLayout>
