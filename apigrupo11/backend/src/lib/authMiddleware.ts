@@ -81,7 +81,7 @@ export function createAuthErrorResponse(message: string, status: number = 401) {
 
 /**
  * Middleware para requerir autenticación con scopes específicos
- * Usa introspección de tokens para validar con Keycloak directamente
+ * Si hay clientId configurado, usa introspección. Si no, valida con JWKS (acepta cualquier client del realm)
  */
 export async function requireAuth(
   req: NextRequest, 
@@ -102,16 +102,33 @@ export async function requireAuth(
       };
     }
 
-    // Validar el token usando introspección de Keycloak
-    const tokenData = await keycloak.introspectToken(token);
-    
-    if (!tokenData || !tokenData.active) {
-      return {
-        error: NextResponse.json(
-          { error: 'Invalid or expired token' },
-          { status: 401 }
-        )
-      };
+    let tokenData: any;
+    const hasClientConfig = process.env.KEYCLOAK_CLIENT_ID && process.env.KEYCLOAK_CLIENT_SECRET;
+
+    if (hasClientConfig) {
+      // Si hay client configurado, usar introspección
+      tokenData = await keycloak.introspectToken(token);
+      
+      if (!tokenData || !tokenData.active) {
+        return {
+          error: NextResponse.json(
+            { error: 'Invalid or expired token' },
+            { status: 401 }
+          )
+        };
+      }
+    } else {
+      // Si no hay client, validar solo con JWKS (acepta cualquier client del realm)
+      tokenData = await keycloak.validateToken(token, false);
+      
+      if (!tokenData) {
+        return {
+          error: NextResponse.json(
+            { error: 'Invalid or expired token' },
+            { status: 401 }
+          )
+        };
+      }
     }
 
     // Verificar scopes si es necesario
