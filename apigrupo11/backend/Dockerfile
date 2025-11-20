@@ -1,26 +1,23 @@
-# Build de la aplicación
-FROM node:22-alpine AS builder
+# Imagen base
+FROM node:22-alpine
+
+# Directorio de trabajo
 WORKDIR /app
+
+# Copiar package.json y package-lock.json
+COPY package*.json ./
 
 # Instalar dependencias
-COPY package*.json ./
 RUN npm install
 
-# Copiar el código fuente
+# Copiar el resto del proyecto
 COPY . .
 
-# Si tu backend necesita build (TypeScript → dist):
-# RUN npm run build
+# Construir Next.js
+RUN npm run build
 
-# Imagen final
-FROM node:22-alpine
-WORKDIR /app
+# Exponer puerto
+EXPOSE 3000
 
-COPY --from=builder /app ./
-
-# Variables de entorno
-ENV NODE_ENV=production
-
-EXPOSE 4000
-
+# Comando final
 CMD ["npm", "start"]
