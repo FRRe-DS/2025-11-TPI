@@ -3,6 +3,7 @@ import { theme } from '../../styles/theme';
 import { IconButton } from '../ui/IconButton';
 import { FiBell, FiUser } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
+import { Toaster } from 'sonner';
 
 const styles: { [key: string]: React.CSSProperties } = {
   header: {
@@ -129,7 +130,12 @@ const TopHeader: React.FC = () => {
   return (
     <header style={styles.header}>
       <div style={styles.centerTitle}>
-        <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.6 }}>Stock system</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: theme.spacing.sm }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 48, height: 48 }}>
+            <img src="/utn-frre-vertical.svg" alt="UTN FRRe" style={{ width: 36, height: 48, objectFit: 'contain' }} />
+          </div>
+          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.6 }}>Stock system</h1>
+        </div>
       </div>
       <div style={styles.actions}>
         <div style={{ position: 'relative' }} ref={notifRef}>
@@ -181,6 +187,8 @@ const TopHeader: React.FC = () => {
           />
         </div>
       </div>
+      {/* Toaster global para feedback */}
+      <Toaster richColors />
     </header>
   );
 };

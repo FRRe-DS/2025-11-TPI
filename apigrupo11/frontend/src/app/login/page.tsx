@@ -25,10 +25,11 @@ export default function LoginPage() {
   // --- Función de Login ---
   // Esta función ahora es mucho más simple
   const handleLogin = () => {
-    // 3. Llamamos a signIn y le decimos que use el proveedor "keycloak"
-    signIn('keycloak', {
-      // Opcional: A dónde volver después del login
-      callbackUrl: '/dashboard', 
+    // Llamamos a signIn usando el proveedor 'credentials' con credenciales de desarrollo
+    signIn('credentials', {
+      username: process.env.NEXT_PUBLIC_DEV_AUTH_USER || 'test-user',
+      password: process.env.NEXT_PUBLIC_DEV_AUTH_PASS || 'password123',
+      callbackUrl: '/dashboard'
     });
   };
 

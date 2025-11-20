@@ -1,6 +1,6 @@
-import NextAuth, { AuthOptions, Session, Account } from "next-auth"
-import { JWT } from "next-auth/jwt"
-import KeycloakProvider from "next-auth/providers/keycloak"
+import NextAuth, { AuthOptions } from "next-auth"
+import CredentialsProvider from 'next-auth/providers/credentials'
+import { JWT } from 'next-auth/jwt'
 
 async function refreshAccessToken(token: JWT) {
   try {
@@ -38,52 +38,56 @@ async function refreshAccessToken(token: JWT) {
   }
 }
 
-export const authOptions: AuthOptions = { 
+export const authOptions: AuthOptions = {
   providers: [
-    KeycloakProvider({
-      clientId: process.env.KEYCLOAK_CLIENT_ID as string,
-      clientSecret: process.env.KEYCLOAK_CLIENT_SECRET as string,
-      issuer: process.env.KEYCLOAK_ISSUER as string,
+    // Provider de credenciales simple para modo local/desarrollo.
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        username: { label: 'Usuario', type: 'text', placeholder: 'test-user' },
+        password: { label: 'Password', type: 'password' }
+      },
+      async authorize(credentials) {
+        // Credenciales por defecto para desarrollo
+        const username = credentials?.username ?? 'test-user';
+        const password = credentials?.password ?? 'password123';
 
-      // --- AGREGA ESTE BLOQUE ---
-      // Le decimos a NextAuth que solo pida el permiso 'openid'.
-      // Esto es para probar si el error es por 'profile' o 'email'.
-      authorization: {
-        params: {
-          scope: 'openid'
+        // Si proporcionas variables de entorno para usuario de desarrollo, úsalas
+        const devUser = process.env.DEV_AUTH_USER || 'test-user';
+        const devPass = process.env.DEV_AUTH_PASS || 'password123';
+
+        if (username === devUser && password === devPass) {
+          // Retornamos un objeto de usuario que NextAuth almacenará en la sesión
+          return {
+            id: 'dev-1',
+            name: 'Dev User',
+            email: 'dev@example.com'
+          };
         }
+
+        // Autenticación fallida
+        return null;
       }
-      // --- FIN DE LO AGREGADO ---
     }),
   ],
   callbacks: {
-    async jwt({ token, account }: { token: JWT; account: Account | null }) {
-      // Initial sign in
-      if (account) {
-        return {
-          accessToken: account.access_token,
-          accessTokenExpires: Date.now() + (account.expires_in as number) * 1000,
-          refreshToken: account.refresh_token,
-          user: token.user,
-        };
+    async jwt({ token, user }: { token: JWT; user?: any }) {
+      if (user) {
+        token.user = user;
       }
-
-      // Return previous token if the access token has not expired yet
-      if (Date.now() < (token.accessTokenExpires as number)) {
-        return token;
-      }
-
-      // Access token has expired, try to update it
-      return refreshAccessToken(token);
+      return token;
     },
-    async session({ session, token }: { session: Session; token: JWT }) {
-      if (token && token.accessToken) {
-        (session as any).accessToken = token.accessToken;
-        (session as any).error = token.error;
+    async session({ session, token }: { session: any; token: JWT }) {
+      if (token && (token as any).user) {
+        session.user = (token as any).user;
       }
-      return session
-    },
+      return session;
+    }
   },
+  // Para desarrollo queremos cookies basadas en huella menos estrictas
+  session: {
+    strategy: 'jwt'
+  }
 }
 
 const handler = NextAuth(authOptions)

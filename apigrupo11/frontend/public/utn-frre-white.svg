@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UTN FRRe logo">
+  <title>UTN FRRe</title>
+  <rect width="64" height="64" fill="#0b1220" rx="8" />
+  <!-- stylized geometric mark -->
+  <path d="M16 12 L48 12 L48 40 L32 56 L16 40 Z" fill="#ffffff" />
+  <!-- small UTN text -->
+  <text x="8" y="50" font-family="Inter, Arial, sans-serif" font-size="8" fill="#ffffff" font-weight="700">UTN</text>
+</svg>
