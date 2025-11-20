@@ -1,18 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { productoDB } from "@/lib/database";
 import { ProductoInput } from "@/lib/types";
-import { badRequest } from "../_utils";
+import { badRequest, corsHeaders } from "../_utils";
 import { requireAuth } from "@/lib/authMiddleware";
 
 // OPTIONS /api/productos
 export async function OPTIONS(req: NextRequest) {
-  return NextResponse.json({}, {
-    headers: {
-      'Access-Control-Allow-Origin': 'http://localhost:5173',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    }
-  });
+  return NextResponse.json({}, { headers: corsHeaders });
 }
 
 // GET /api/productos
@@ -48,13 +42,7 @@ export async function GET(req: NextRequest) {
       }
     };
     
-    return NextResponse.json(response, {
-      headers: {
-        'Access-Control-Allow-Origin': 'http://localhost:5173',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
-    });
+    return NextResponse.json(response, { headers: corsHeaders });
   } catch (error) {
     console.error('Error fetching productos:', error);
     return NextResponse.json(
@@ -84,14 +72,7 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await productoDB.create(body);
-    return NextResponse.json(result.resp, { 
-      status: 201,
-      headers: {
-        'Access-Control-Allow-Origin': 'http://localhost:5173',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
-    });
+    return NextResponse.json(result.resp, { status: 201, headers: corsHeaders });
   } catch (error) {
     console.error('Error creating producto:', error);
     return NextResponse.json(

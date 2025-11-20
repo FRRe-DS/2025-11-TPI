@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { badRequest } from "@/app/api/_utils";
+import { badRequest, corsHeaders } from "@/app/api/_utils";
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
 
 // GET /api/categorias -> lista de categorías
 export async function GET() {
   const list = db.listCategorias();
-  return NextResponse.json(list);
+  return NextResponse.json(list, { headers: corsHeaders });
 }
 
 // POST /api/categorias -> crear categoría
@@ -17,5 +21,5 @@ export async function POST(req: NextRequest) {
   if (nombre.length > 100) return badRequest("Los datos proporcionados son inválidos.", "nombre debe tener hasta 100 caracteres");
 
   const created = db.createCategoria({ nombre, descripcion: body.descripcion ?? null });
-  return NextResponse.json(created, { status: 201 });
+  return NextResponse.json(created, { status: 201, headers: corsHeaders });
 }

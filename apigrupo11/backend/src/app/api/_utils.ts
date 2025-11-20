@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { ErrorResponse } from "@/lib/types";
 
+export const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
 export function badRequest(message: string, details?: string) {
   const body: ErrorResponse = { code: "INVALID_DATA", message, details };
   return NextResponse.json(body, { status: 400 });
