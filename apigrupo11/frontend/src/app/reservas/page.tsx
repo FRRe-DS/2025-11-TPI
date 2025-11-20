@@ -13,30 +13,26 @@ interface Reserva {
   estado: 'Activa' | 'Completada' | 'Cancelada';
 }
 
-const mockReservas: Reserva[] = [
-  {
-    id: 1,
-    cliente: 'María González',
-    productosCant: 3,
-    productos: [
-      { nombre: 'Mouse Inalámbrico', sku: 'PRT-MSE-BLK', cantidad: 1 },
-      { nombre: 'Teclado Mecánico', sku: 'TKL-MEC-RGB', cantidad: 1 },
-      { nombre: 'Webcam HD', sku: 'HDM-1080P', cantidad: 1 },
-    ],
-    fecha: '2025-11-15 10:35',
-    estado: 'Activa',
-  },
-  {
-    id: 2,
-    cliente: 'Comercial SA',
-    productosCant: 2,
-    productos: [
-      { nombre: 'Laptop Pro 15"', sku: 'LPT-15-69-512', cantidad: 2 },
-    ],
-    fecha: '2025-11-12 14:10',
-    estado: 'Completada',
-  },
-];
+const [reservas, setReservas] = useState<Reserva[]>([]);
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  async function obtenerReservas() {
+    try {
+      const res = await fetch("/api/reservas", { method: "GET" });
+      if (!res.ok) throw new Error("Error obteniendo reservas");
+      const data = await res.json();
+      setReservas(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  obtenerReservas();
+}, []);
+
 
 export default function ReservasPage() {
   return (
@@ -62,7 +58,7 @@ export default function ReservasPage() {
                 </tr>
               </thead>
               <tbody>
-                {mockReservas.map((r) => (
+                {reservas.map((r) => (
                   <tr key={r.id} style={{ borderBottom: `1px solid ${theme.colors.border}` }}>
                     <td style={{ padding: '12px', fontWeight: 600 }}>{r.cliente}</td>
                     <td style={{ padding: '12px' }}>{r.productosCant}</td>
