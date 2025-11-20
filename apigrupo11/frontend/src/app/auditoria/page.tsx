@@ -1,5 +1,6 @@
  'use client';
 
+import { useEffect, useState } from 'react';
 import React from 'react';
 import MainLayout from '../../components/layout/MainLayoutNext';
 import { theme } from '../../styles/theme';
@@ -15,62 +16,30 @@ interface Movimiento {
 }
 
 export default function AuditPage() {
-  const movimientos: Movimiento[] = [
-    {
-      timestamp: "2025-10-18 14:30:15",
-      producto: "Laptop Pro 15",
-      sku: "LPT-15-69-512",
-      tipo: "Salida",
-      cambio: -5,
-      usuario: "api_ventas",
-      motivo: "Venta Orden #1234",
-    },
-    {
-      timestamp: "2025-10-18 10:15:00",
-      producto: "Mouse Inalámbrico",
-      sku: "PRT-MSE-BLK",
-      tipo: "Entrada",
-      cambio: 200,
-      usuario: "admin_almacen",
-      motivo: "Recepción proveedor",
-    },
-    {
-      timestamp: "2025-10-17 18:05:45",
-      producto: "Teclado Mecánico",
-      sku: "TKL-MEC-RGB",
-      tipo: "Reserva",
-      cambio: -1,
-      usuario: "api_ventas",
-      motivo: "Reserva Orden #1209",
-    },
-    {
-      timestamp: "2025-10-17 11:20:10",
-      producto: "Webcam HD 1080p",
-      sku: "HDM-1080P",
-      tipo: "Ajuste",
-      cambio: -2,
-      usuario: "juan_perez",
-      motivo: "Rotura detectada",
-    },
-    {
-      timestamp: "2025-10-16 16:45:30",
-      producto: "Monitor 4K 27",
-      sku: "MON-4K-27",
-      tipo: "Entrada",
-      cambio: 15,
-      usuario: "maria_gonzalez",
-      motivo: "Compra mensual",
-    },
-    {
-      timestamp: "2025-10-16 09:10:22",
-      producto: "Auriculares Gaming",
-      sku: "AUR-GMG-RGB",
-      tipo: "Liberacion",
-      cambio: 3,
-      usuario: "api_ventas",
-      motivo: "Cancelación Orden #1187",
-    },
-  ];
+  const [movimientos, setMovimientos] = useState<Movimiento[]>([]);
+
+ /*solicita los datos a la api y los carga en el estado movimiento*/
+  useEffect(() => {
+    const fetchMovimientos = async () => {
+      try {
+        const res = await fetch("https://localhost:3000/api/movimiento", {
+          method: "GET",
+        });
+
+        if (!res.ok) {
+          throw new Error("Error al obtener movimientos");
+        }
+
+        const data: Movimiento[] = await res.json();
+        setMovimientos(data);
+      } catch (error) {
+        console.error("Error cargando movimientos:", error);
+      }
+    };
+
+    fetchMovimientos();
+  }, []);
+
 
   const getTipoColor = (tipo: string) => {
     switch (tipo) {
