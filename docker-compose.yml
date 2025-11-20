@@ -13,7 +13,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init-complete.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/01-init.sql
       - ./apigrupo11/database/schema.sql:/docker-entrypoint-initdb.d/02-schema.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -59,28 +59,19 @@ services:
       - postgres
 
   backend:
-    image: ghcr.io/frre-ds/2025-grupo-11-backend-stock:8a131ddc68811ba1bc37846e4187893cbf0d928c
+    build:
+      context: ./apigrupo11/backend
+      dockerfile: Dockerfile
     container_name: backend
     environment:
-      # Database
       DB_HOST: postgres_main
-      DB_PORT: "5432"
       DB_NAME: stock_management
       DB_USER: postgres
-      DB_PASSWORD: password
-      DATABASE_URL: postgresql://postgres:password@postgres_main:5432/stock_management
-      
-      # Keycloak - solo configurar el realm, aceptar cualquier client
-      KEYCLOAK_ISSUER: http://keycloak:8080/realms/ds-2025-realm
-      KEYCLOAK_REALM: ds-2025-realm
+      DB_PASS: postgres
     ports:
       - "3000:3000"
     depends_on:
-      postgres:
-        condition: service_healthy
-      keycloak:
-        condition: service_started
-    restart: unless-stopped
+      - postgres
 
 volumes:
   postgres_data:

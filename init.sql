@@ -22,6 +22,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public
 ALTER DEFAULT PRIVILEGES IN SCHEMA public
     GRANT ALL ON SEQUENCES TO keycloak_db_user;
 
--- 6️⃣ Volver a conectar a stock_management
--- El schema.sql se ejecutará automáticamente después de este archivo
+-- 6️⃣ Conectarse a la base de datos principal del backend
 \c stock_management;
+
+-- 7️⃣ Ejecutar el schema que crea tablas y datos
+\i '/docker-entrypoint-initdb.d/02-schema.sql';

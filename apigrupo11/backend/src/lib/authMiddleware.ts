@@ -81,7 +81,6 @@ export function createAuthErrorResponse(message: string, status: number = 401) {
 
 /**
  * Middleware para requerir autenticación con scopes específicos
- * Si hay clientId configurado, usa introspección. Si no, valida con JWKS (acepta cualquier client del realm)
  */
 export async function requireAuth(
   req: NextRequest, 
@@ -102,39 +101,22 @@ export async function requireAuth(
       };
     }
 
-    let tokenData: any;
-    const hasClientConfig = process.env.KEYCLOAK_CLIENT_ID && process.env.KEYCLOAK_CLIENT_SECRET;
-
-    if (hasClientConfig) {
-      // Si hay client configurado, usar introspección
-      tokenData = await keycloak.introspectToken(token);
-      
-      if (!tokenData || !tokenData.active) {
-        return {
-          error: NextResponse.json(
-            { error: 'Invalid or expired token' },
-            { status: 401 }
-          )
-        };
-      }
-    } else {
-      // Si no hay client, validar solo con JWKS (acepta cualquier client del realm)
-      tokenData = await keycloak.validateToken(token, false);
-      
-      if (!tokenData) {
-        return {
-          error: NextResponse.json(
-            { error: 'Invalid or expired token' },
-            { status: 401 }
-          )
-        };
-      }
+    // Validar el token
+    const payload = await keycloak.validateToken(token);
+    
+    if (!payload) {
+      return {
+        error: NextResponse.json(
+          { error: 'Invalid or expired token' },
+          { status: 401 }
+        )
+      };
     }
 
     // Verificar scopes si es necesario
     if (options.requiredScopes) {
-      const tokenScopes = tokenData.scope?.split(' ') || [];
-      const hasAllScopes = options.requiredScopes.every((scope: string) => 
+      const tokenScopes = (payload as any).scope?.split(' ') || [];
+      const hasAllScopes = options.requiredScopes.every(scope => 
         tokenScopes.includes(scope)
       );
       
@@ -150,11 +132,11 @@ export async function requireAuth(
 
     return {
       user: {
-        sub: tokenData.sub,
-        email: tokenData.email,
-        username: tokenData.preferred_username || tokenData.username,
-        roles: tokenData.realm_access?.roles || [],
-        scopes: tokenData.scope?.split(' ') || []
+        sub: payload.sub,
+        email: payload.email,
+        username: payload.preferred_username,
+        roles: payload.realm_access?.roles || [],
+        scopes: (payload as any).scope?.split(' ') || []
       }
     };
   } catch (error) {
