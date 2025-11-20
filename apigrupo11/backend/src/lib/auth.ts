@@ -58,8 +58,10 @@ export class KeycloakAuth {
 
   /**
    * Valida un token JWT de Keycloak
+   * @param token - El token JWT a validar
+   * @param validateClientId - Si es true, valida que el token sea para el clientId configurado. Si es false, acepta cualquier client del realm.
    */
-  async validateToken(token: string): Promise<JWTPayload | null> {
+  async validateToken(token: string, validateClientId: boolean = false): Promise<JWTPayload | null> {
     try {
       const jwks = await this.getJWKS();
       
@@ -76,21 +78,21 @@ export class KeycloakAuth {
       // Importar la clave JWK
       const publicKey = await importJWK(key);
 
-      // Verificar el JWT
+      // Verificar el JWT - solo validamos el issuer (realm)
       const { payload } = await jwtVerify(token, publicKey, {
         issuer: this.config.issuer,
-        // No validamos audience aquí porque puede variar según el tipo de token
       });
 
-      // Verificar que el token pertenece al cliente correcto (azp para client_credentials, aud para otros)
-      const clientId = payload.azp || payload.aud;
-      if (Array.isArray(clientId)) {
-        // Si aud es un array, verificar que nuestro cliente esté incluido
-        if (!clientId.includes(this.config.clientId)) {
+      // Validación opcional del clientId
+      if (validateClientId) {
+        const clientId = payload.azp || payload.aud;
+        if (Array.isArray(clientId)) {
+          if (!clientId.includes(this.config.clientId)) {
+            throw new Error('Token not issued for this client');
+          }
+        } else if (clientId !== this.config.clientId) {
           throw new Error('Token not issued for this client');
         }
-      } else if (clientId !== this.config.clientId) {
-        throw new Error('Token not issued for this client');
       }
 
       return payload as JWTPayload;
