@@ -13,40 +13,41 @@ interface Reserva {
   estado: 'Activa' | 'Completada' | 'Cancelada';
 }
 
-const [reservas, setReservas] = useState<Reserva[]>([]);
-const [loading, setLoading] = useState(true);
-
-useEffect(() => {
-  async function obtenerReservas() {
-    try {
-      const res = await fetch(
-        "https://localhost:3000/api/reservas?usuarioId=1&page=1&limit=20",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          cache: "no-store",
-        }
-      );
-
-      if (!res.ok) throw new Error("Error obteniendo reservas");
-
-      const data = await res.json();
-      setReservas(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  obtenerReservas();
-}, []);
-
-
-
 export default function ReservasPage() {
+  const [reservas, setReservas] = useState<Reserva[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function obtenerReservas() {
+      try {
+        const res = await fetch(
+          "http://localhost:3000/api/reservas?usuarioId=1&page=1&limit=20",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            cache: "no-store",
+          }
+        );
+
+        if (!res.ok) throw new Error("Error obteniendo reservas");
+
+        const data = await res.json();
+        setReservas(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    obtenerReservas();
+  }, []);
+
+
+
+
   return (
     <MainLayout>
       <div style={{ display: 'block', gap: theme.spacing.lg }}>

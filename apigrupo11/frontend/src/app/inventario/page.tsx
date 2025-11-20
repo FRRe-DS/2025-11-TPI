@@ -26,7 +26,7 @@ export default function InventoryPage() {
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const res = await fetch("https://localhost:3000/api/producto", {
+        const res = await fetch("http://localhost:3000/api/producto", {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           cache: "no-store"
