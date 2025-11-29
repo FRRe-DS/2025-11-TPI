@@ -81,6 +81,7 @@ export function createAuthErrorResponse(message: string, status: number = 401) {
 
 /**
  * Middleware para requerir autenticación con scopes específicos
+ * Usa introspección de tokens para validar con Keycloak directamente
  */
 export async function requireAuth(
   req: NextRequest, 
@@ -101,10 +102,10 @@ export async function requireAuth(
       };
     }
 
-    // Validar el token
-    const payload = await keycloak.validateToken(token);
+    // Validar el token usando introspección de Keycloak
+    const tokenData = await keycloak.introspectToken(token);
     
-    if (!payload) {
+    if (!tokenData || !tokenData.active) {
       return {
         error: NextResponse.json(
           { error: 'Invalid or expired token' },
@@ -115,8 +116,8 @@ export async function requireAuth(
 
     // Verificar scopes si es necesario
     if (options.requiredScopes) {
-      const tokenScopes = (payload as any).scope?.split(' ') || [];
-      const hasAllScopes = options.requiredScopes.every(scope => 
+      const tokenScopes = tokenData.scope?.split(' ') || [];
+      const hasAllScopes = options.requiredScopes.every((scope: string) => 
         tokenScopes.includes(scope)
       );
       
@@ -132,11 +133,11 @@ export async function requireAuth(
 
     return {
       user: {
-        sub: payload.sub,
-        email: payload.email,
-        username: payload.preferred_username,
-        roles: payload.realm_access?.roles || [],
-        scopes: (payload as any).scope?.split(' ') || []
+        sub: tokenData.sub,
+        email: tokenData.email,
+        username: tokenData.preferred_username || tokenData.username,
+        roles: tokenData.realm_access?.roles || [],
+        scopes: tokenData.scope?.split(' ') || []
       }
     };
   } catch (error) {

@@ -54,7 +54,7 @@ export default function DashboardPage() {
 
       try {
         // URL correcta para Docker en Windows
-        const response = await fetch('http://host.docker.internal:3000/api/productos?page=1&limit=5', {
+        const response = await fetch('http://localhost:3000/api/productos?page=1&limit=5', {
           headers: {
             'Authorization': `Bearer ${session.accessToken}`,
           },
