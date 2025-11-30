@@ -486,6 +486,353 @@ INSERT INTO producto_categorias (producto_id, categoria_id) VALUES
     (31, 14), -- Vitaminas -> Salud
     (32, 15), -- Pañales -> Bebés
     (33, 15); -- Biberón -> Bebés
+a para 6 personas',
+        599.00,
+        8,
+        25.0,
+        '{"largoCm": 180, "anchoCm": 90, "altoCm": 75}',
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/table1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Smartphone X Pro',
+        'Teléfono inteligente con cámara de 108MP y pantalla AMOLED',
+        899.99,
+        50,
+        0.19,
+        '{"largoCm": 16, "anchoCm": 7.5, "altoCm": 0.8}',
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/phone1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Auriculares Bluetooth',
+        'Auriculares inalámbricos con cancelación de ruido activa',
+        199.99,
+        75,
+        0.25,
+        '{"largoCm": 20, "anchoCm": 18, "altoCm": 8}',
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/headphones1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Jean Classic Fit',
+        'Pantalón jean clásico de algodón premium',
+        59.99,
+        120,
+        0.5,
+        '{"largoCm": 100, "anchoCm": 40, "altoCm": 2}',
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/jeans1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Zapatillas Running',
+        'Zapatillas deportivas con tecnología de amortiguación',
+        89.99,
+        60,
+        0.4,
+        '{"largoCm": 30, "anchoCm": 20, "altoCm": 12}',
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/shoes1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Silla Ergonómica',
+        'Silla de oficina con soporte lumbar ajustable',
+        249.99,
+        30,
+        15.0,
+        '{"largoCm": 65, "anchoCm": 65, "altoCm": 120}',
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/chair1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Lámpara LED Moderna',
+        'Lámpara de pie con control de intensidad y temperatura de color',
+        79.99,
+        45,
+        2.5,
+        '{"largoCm": 30, "anchoCm": 30, "altoCm": 150}',
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/lamp1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Pelota de Fútbol',
+        'Pelota oficial de fútbol tamaño 5',
+        34.99,
+        150,
+        0.43,
+        '{"largoCm": 22, "anchoCm": 22, "altoCm": 22}',
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/ball1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Bicicleta Mountain Bike',
+        'Bicicleta de montaña con 21 velocidades y suspensión',
+        449.99,
+        12,
+        14.0,
+        '{"largoCm": 180, "anchoCm": 65, "altoCm": 110}',
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/bike1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'El Principito',
+        'Clásico de la literatura universal',
+        15.99,
+        200,
+        0.15,
+        '{"largoCm": 20, "anchoCm": 13, "altoCm": 1}',
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/book1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Cien Años de Soledad',
+        'Obra maestra de Gabriel García Márquez',
+        18.99,
+        180,
+        0.35,
+        '{"largoCm": 23, "anchoCm": 15, "altoCm": 3}',
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/book2.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Lego Star Wars Set',
+        'Set de construcción Lego de 500 piezas',
+        79.99,
+        40,
+        0.8,
+        '{"largoCm": 35, "anchoCm": 25, "altoCm": 10}',
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/lego1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Muñeca Barbie',
+        'Muñeca Barbie edición especial con accesorios',
+        29.99,
+        90,
+        0.3,
+        '{"largoCm": 30, "anchoCm": 15, "altoCm": 8}',
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/barbie1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Café Colombiano Premium',
+        'Café en grano 100% arábica de origen colombiano - 500g',
+        24.99,
+        250,
+        0.5,
+        '{"largoCm": 20, "anchoCm": 10, "altoCm": 8}',
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/coffee1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Aceite de Oliva Extra Virgen',
+        'Aceite de oliva premium - 1 litro',
+        19.99,
+        100,
+        1.0,
+        '{"largoCm": 25, "anchoCm": 8, "altoCm": 8}',
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/oil1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Crema Facial Antiarrugas',
+        'Crema facial con ácido hialurónico y colágeno - 50ml',
+        39.99,
+        80,
+        0.1,
+        '{"largoCm": 8, "anchoCm": 8, "altoCm": 6}',
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/cream1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Shampoo Reparador',
+        'Shampoo para cabello dañado con keratina - 400ml',
+        14.99,
+        150,
+        0.45,
+        '{"largoCm": 20, "anchoCm": 8, "altoCm": 8}',
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/shampoo1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Filtro de Aire Automotriz',
+        'Filtro de aire universal para vehículos',
+        24.99,
+        70,
+        0.3,
+        '{"largoCm": 25, "anchoCm": 20, "altoCm": 8}',
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/filter1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Aceite de Motor 10W40',
+        'Aceite sintético para motor - 4 litros',
+        49.99,
+        55,
+        3.5,
+        '{"largoCm": 25, "anchoCm": 15, "altoCm": 20}',
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/oil-motor1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Alimento Balanceado para Perros',
+        'Alimento premium para perros adultos - 15kg',
+        64.99,
+        45,
+        15.0,
+        '{"largoCm": 60, "anchoCm": 40, "altoCm": 15}',
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/dogfood1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Arena para Gatos',
+        'Arena sanitaria aglutinante sin olor - 10kg',
+        19.99,
+        85,
+        10.0,
+        '{"largoCm": 45, "anchoCm": 30, "altoCm": 12}',
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/catlitter1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Guitarra Acústica',
+        'Guitarra acústica de cuerdas de acero con funda',
+        199.99,
+        20,
+        2.0,
+        '{"largoCm": 100, "anchoCm": 38, "altoCm": 12}',
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/guitar1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Teclado Musical 61 Teclas',
+        'Teclado electrónico con múltiples sonidos y ritmos',
+        149.99,
+        25,
+        4.5,
+        '{"largoCm": 95, "anchoCm": 35, "altoCm": 12}',
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/keyboard1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Set de Herramientas de Jardín',
+        'Kit completo con pala, rastrillo y tijeras de podar',
+        59.99,
+        35,
+        3.0,
+        '{"largoCm": 90, "anchoCm": 30, "altoCm": 10}',
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/gardentools1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Maceta Decorativa Grande',
+        'Maceta de cerámica con plato - 40cm diámetro',
+        34.99,
+        50,
+        5.0,
+        '{"largoCm": 40, "anchoCm": 40, "altoCm": 35}',
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/pot1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Cuaderno Universitario A4',
+        'Cuaderno espiral de 200 hojas rayadas',
+        8.99,
+        300,
+        0.5,
+        '{"largoCm": 30, "anchoCm": 21, "altoCm": 2}',
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/notebook1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Set de Bolígrafos',
+        'Pack de 12 bolígrafos de colores variados',
+        12.99,
+        200,
+        0.15,
+        '{"largoCm": 20, "anchoCm": 10, "altoCm": 2}',
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/pens1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Termómetro Digital',
+        'Termómetro infrarrojo sin contacto',
+        29.99,
+        100,
+        0.2,
+        '{"largoCm": 15, "anchoCm": 10, "altoCm": 5}',
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/thermometer1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Vitaminas Multivitamínico',
+        'Suplemento vitamínico completo - 60 comprimidos',
+        19.99,
+        120,
+        0.1,
+        '{"largoCm": 12, "anchoCm": 6, "altoCm": 6}',
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/vitamins1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Pañales Recién Nacido',
+        'Paquete de pañales talla RN - 40 unidades',
+        24.99,
+        150,
+        1.5,
+        '{"largoCm": 35, "anchoCm": 25, "altoCm": 15}',
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/diapers1.jpg", "esPrincipal": true}]'
+    ),
+    (
+        'Biberón Anticólico',
+        'Biberón de 250ml con sistema anticólico',
+        14.99,
+        95,
+        0.15,
+        '{"largoCm": 20, "anchoCm": 8, "altoCm": 8}',
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/bottle1.jpg", "esPrincipal": true}]'
+    );
+
+-- Assign categories to products
+INSERT INTO producto_categorias (producto_id, categoria_id) VALUES
+    (1, 1),   -- Laptop -> Electrónicos
+    (2, 2),   -- Camiseta -> Ropa
+    (2, 4),   -- Camiseta -> Deportes
+    (3, 3),   -- Mesa -> Hogar
+    (4, 1),   -- Smartphone -> Electrónicos
+    (5, 1),   -- Auriculares -> Electrónicos
+    (6, 2),   -- Jean -> Ropa
+    (7, 2),   -- Zapatillas -> Ropa
+    (7, 4),   -- Zapatillas -> Deportes
+    (8, 3),   -- Silla -> Hogar
+    (8, 13),  -- Silla -> Oficina
+    (9, 3),   -- Lámpara -> Hogar
+    (10, 4),  -- Pelota -> Deportes
+    (11, 4),  -- Bicicleta -> Deportes
+    (12, 5),  -- El Principito -> Libros
+    (13, 5),  -- Cien Años de Soledad -> Libros
+    (14, 6),  -- Lego -> Juguetes
+    (15, 6),  -- Barbie -> Juguetes
+    (16, 7),  -- Café -> Alimentos
+    (17, 7),  -- Aceite -> Alimentos
+    (18, 8),  -- Crema Facial -> Belleza
+    (19, 8),  -- Shampoo -> Belleza
+    (20, 9),  -- Filtro de Aire -> Automotriz
+    (21, 9),  -- Aceite de Motor -> Automotriz
+    (22, 10), -- Alimento para Perros -> Mascotas
+    (23, 10), -- Arena para Gatos -> Mascotas
+    (24, 11), -- Guitarra -> Música
+    (25, 11), -- Teclado Musical -> Música
+    (26, 12), -- Set de Herramientas -> Jardín
+    (27, 12), -- Maceta -> Jardín
+    (28, 13), -- Cuaderno -> Oficina
+    (29, 13), -- Bolígrafos -> Oficina
+    (30, 14), -- Termómetro -> Salud
+    (31, 14), -- Vitaminas -> Salud
+    (32, 15), -- Pañales -> Bebés
+    (33, 15); -- Biberón -> Bebés
 
 -- Create a view for easier product querying with categories
 CREATE OR REPLACE VIEW productos_con_categorias AS

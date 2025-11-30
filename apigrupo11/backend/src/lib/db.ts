@@ -19,7 +19,7 @@ interface ReservaRow {
   expiresAt: string;
   fechaCreacion: string;
   fechaActualizacion?: string;
-  items: { idProducto: number; cantidad: number }[];
+  items: { idProducto: number; cantidad: number; nombre?: string; precioUnitario?: number }[];
 }
 const reservas = new Map<number, ReservaRow>();
 
@@ -129,20 +129,9 @@ export const db = {
 
   // Reservas y stock
   reservar(input: ReservaInput): { ok: boolean; error?: string; reserva?: ReservaOutput } {
-    // check products and stock
-    for (const item of input.productos) {
-      const p = productos.get(item.idProducto);
-      if (!p) return { ok: false, error: `Producto ${item.idProducto} no existe` };
-      if (item.cantidad < 1) return { ok: false, error: `Cantidad inválida para producto ${item.idProducto}` };
-      if (p.stockDisponible < item.cantidad) return { ok: false, error: `Stock insuficiente para producto ${p.id}` };
-    }
-    // reserve: reduce stock
-    input.productos.forEach((item) => {
-      const p = productos.get(item.idProducto)!;
-      p.stockDisponible -= item.cantidad;
-      productos.set(p.id, p);
-    });
-
+    // NOTA: La validación de productos ya se hace en el endpoint usando PostgreSQL
+    // Por ahora solo creamos la reserva en memoria
+    
     const idReserva = nextReservaId++;
     const ahora = new Date();
     const expiresAt = addMinutes(ahora, 30).toISOString();
@@ -153,7 +142,12 @@ export const db = {
       estado: "confirmado",
       expiresAt,
       fechaCreacion: ahora.toISOString(),
-      items: input.productos.map((i) => ({ idProducto: i.idProducto, cantidad: i.cantidad })),
+      items: input.productos.map((i) => ({ 
+        idProducto: i.idProducto, 
+        cantidad: i.cantidad,
+        nombre: (i as any).nombre || 'Producto',
+        precioUnitario: (i as any).precioUnitario || 0
+      })),
     };
     reservas.set(idReserva, header);
 
@@ -184,8 +178,19 @@ export const db = {
     return { ok: true, out: { mensaje: "Stock liberado correctamente.", idReserva: input.idReserva, estado: "liberado" } };
   },
 
-  listarReservas(usuarioId: number, page?: number, limit?: number, estado?: EstadoReserva): ReservaCompleta[] {
-    let arr = Array.from(reservas.values()).filter((r) => r.usuarioId === usuarioId);
+  listarReservas(usuarioId?: number, page?: number, limit?: number, estado?: EstadoReserva): ReservaCompleta[] {
+    console.log('listarReservas - Total reservas en Map:', reservas.size);
+    console.log('listarReservas - Filtrando por usuarioId:', usuarioId);
+    
+    let arr = Array.from(reservas.values());
+    console.log('listarReservas - Reservas antes de filtrar:', arr.map(r => ({ id: r.idReserva, usuarioId: r.usuarioId })));
+    
+    // Filtrar por usuarioId si se proporciona
+    if (usuarioId !== undefined) {
+      arr = arr.filter((r) => r.usuarioId === usuarioId);
+      console.log('listarReservas - Después de filtrar por usuario:', arr.length);
+    }
+    
     if (estado) arr = arr.filter((r) => r.estado === estado);
     const p = Math.max(1, page || 1);
     const l = Math.min(100, Math.max(1, limit || 20));
@@ -233,12 +238,11 @@ export const db = {
 
 function toReservaCompleta(row: ReservaRow): ReservaCompleta {
   const productosDetalle = row.items.map((i) => {
-    const p = productos.get(i.idProducto);
     return {
       idProducto: i.idProducto,
-      nombre: p?.nombre || "Producto",
+      nombre: i.nombre || 'Producto',
       cantidad: i.cantidad,
-      precioUnitario: p?.precio ?? 0,
+      precioUnitario: i.precioUnitario || 0,
     };
   });
   return {

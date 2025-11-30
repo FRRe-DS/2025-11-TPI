@@ -340,6 +340,16 @@ export const productoDB = {
       const result = await client.query('DELETE FROM productos WHERE id = $1', [id]);
       return (result.rowCount ?? 0) > 0;
     });
+  },
+
+  // Update stock (for reservations)
+  async updateStock(productoId: number, cantidad: number): Promise<void> {
+    const queryText = `
+      UPDATE productos 
+      SET stock_disponible = stock_disponible + $1
+      WHERE id = $2
+    `;
+    await query(queryText, [cantidad, productoId]);
   }
 };
 
