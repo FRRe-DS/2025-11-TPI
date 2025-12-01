@@ -65,6 +65,7 @@ CREATE TABLE reserva_productos (
     id SERIAL PRIMARY KEY,
     reserva_id INTEGER NOT NULL,
     producto_id INTEGER NOT NULL,
+    producto_nombre VARCHAR(255) NOT NULL,
     cantidad INTEGER NOT NULL CHECK (cantidad > 0),
     precio_unitario DECIMAL(10,2) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
