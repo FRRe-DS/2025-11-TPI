@@ -43,6 +43,9 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          build-args: |
+            KEYCLOAK_ISSUER=http://host.docker.internal:8080/realms/ds-2025-realm
+            KEYCLOAK_REALM=ds-2025-realm
           
       - name: Output image details
         run: |

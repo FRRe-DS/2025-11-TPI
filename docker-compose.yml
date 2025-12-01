@@ -59,9 +59,8 @@ services:
       - postgres
 
   backend:
-    build:
-      context: ./apigrupo11/backend
-      dockerfile: Dockerfile
+    image: ghcr.io/frre-ds/2025-grupo-11-backend-stock:latest
+
     container_name: backend
     environment:
       # Database
@@ -72,8 +71,8 @@ services:
       DB_PASSWORD: password
       DATABASE_URL: postgresql://postgres:password@postgres_main:5432/stock_management
       
-      # Keycloak - usar host.docker.internal para que funcione desde dentro del contenedor
-      KEYCLOAK_ISSUER: http://host.docker.internal:8080/realms/ds-2025-realm
+      # Keycloak - solo configurar el realm, aceptar cualquier client
+      KEYCLOAK_ISSUER: http://keycloak:8080/realms/ds-2025-realm
       KEYCLOAK_REALM: ds-2025-realm
     ports:
       - "3000:3000"
