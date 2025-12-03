@@ -193,6 +193,8 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [localCategories, setLocalCategories] = useState<ICategoria[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
   useEffect(() => {
     if (mode === 'edit' && product) {
@@ -204,8 +206,27 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
   }, [mode, product]);
 
   useEffect(() => {
-    // No auto-seleccionamos la primera categoría: el usuario debe elegir explícitamente
-  }, [categories, formData.categoriaId]);
+  const fetchCategorias = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/api/categorias");
+      const data = await res.json();
+      setLocalCategories(data);
+    } catch (err) {
+      console.error("Error cargando categorías:", err);
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
+  // Si el componente NO recibe categorías desde props, las trae él solo
+  if (!categories || categories.length === 0) {
+    fetchCategorias();
+  } else {
+    setLocalCategories(categories);
+    setLoadingCategories(false);
+  }
+}, [categories]);
+
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -422,11 +443,16 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
               <option value="" disabled>
                 Selecciona una categoría
               </option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.nombre}
-                </option>
-              ))}
+              {loadingCategories ? (
+                <option value="">Cargando categorías...</option>
+              ) : (
+                localCategories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.nombre}
+                  </option>
+                ))
+              )}
+
             </select>
           </div>
 
