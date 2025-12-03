@@ -67,6 +67,14 @@ export class KeycloakAuth {
     try {
       const introspectUrl = `${this.config.issuer}/protocol/openid-connect/token/introspect`;
       
+      console.log('[INFO] Introspecting token against:', introspectUrl);
+
+      console.log('[INFO] Parametros de introspeccion:', {
+        token: token,
+        client_id: this.config.clientId,
+        client_secret: this.config.clientSecret,
+      });
+
       const response = await fetch(introspectUrl, {
         method: 'POST',
         headers: {
@@ -78,6 +86,7 @@ export class KeycloakAuth {
           client_secret: this.config.clientSecret,
         }),
       });
+      console.log('[INFO] Introspection response:', response);
 
       if (!response.ok) {
         console.error('Token introspection failed:', response.statusText);
