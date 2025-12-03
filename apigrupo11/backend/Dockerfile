@@ -1,5 +1,5 @@
-# Imagen base
-FROM node:18-alpine
+# Imagen base - Prisma 7 requiere Node.js 20+
+FROM node:20-alpine
 
 # Directorio de trabajo
 WORKDIR /app
@@ -19,5 +19,19 @@ RUN npm run build
 # Exponer puerto
 EXPOSE 3000
 
-# Comando final
-CMD ["npm", "start"]
+# Crear script de inicio que ejecuta el seed solo si la BD está vacía
+RUN echo '#!/bin/sh' > /app/start.sh && \
+    echo 'echo "🔍 Verificando si la base de datos tiene datos..."' >> /app/start.sh && \
+    echo 'COUNT=$(node -e "const { PrismaClient } = require(\"@prisma/client\"); const { PrismaPg } = require(\"@prisma/adapter-pg\"); const { Pool } = require(\"pg\"); const pool = new Pool({ connectionString: process.env.DATABASE_URL }); const prisma = new PrismaClient({ adapter: new PrismaPg(pool) }); prisma.producto.count().then(c => { console.log(c); process.exit(0); }).catch(() => { console.log(0); process.exit(0); });" 2>/dev/null || echo 0)' >> /app/start.sh && \
+    echo 'if [ "$COUNT" = "0" ]; then' >> /app/start.sh && \
+    echo '  echo "🌱 Base de datos vacía, ejecutando seed..."' >> /app/start.sh && \
+    echo '  npm run prisma:seed || echo "⚠️ Seed falló, continuando..."' >> /app/start.sh && \
+    echo 'else' >> /app/start.sh && \
+    echo '  echo "✅ Base de datos ya tiene datos ($COUNT productos), omitiendo seed"' >> /app/start.sh && \
+    echo 'fi' >> /app/start.sh && \
+    echo 'echo "🚀 Iniciando aplicación..."' >> /app/start.sh && \
+    echo 'npm start' >> /app/start.sh && \
+    chmod +x /app/start.sh
+
+# Comando final - ejecuta el script de inicio
+CMD ["/app/start.sh"]

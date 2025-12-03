@@ -59,7 +59,9 @@ services:
       - postgres
 
   backend:
-    image: backend-stock-local:latest
+    build:
+      context: ./apigrupo11/backend
+      dockerfile: Dockerfile
     container_name: backend
     environment:
       # Database

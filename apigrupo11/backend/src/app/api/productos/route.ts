@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { productoDB } from "@/lib/database";
+import { productoDB } from "@/lib/database.prisma";
 import { ProductoInput } from "@/lib/types";
 import { badRequest, corsHeaders } from "../_utils";
 import { requireAuth } from "@/lib/authMiddleware";

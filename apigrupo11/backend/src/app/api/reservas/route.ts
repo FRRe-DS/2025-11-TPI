@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { productoDB, reservasDB } from "@/lib/database";
+import { productoDB, reservaDB } from "@/lib/database.prisma";
 import { ReservaInput } from "@/lib/types";
 import { badRequest, corsHeaders } from "@/app/api/_utils";
 import { requireAuth } from "@/lib/authMiddleware";
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
   const estado = (searchParams.get("estado") as any) || undefined;
   
   console.log(`[INFO] Consultando reservas - UsuarioId: ${usuarioId || 'todos'}, Página: ${page}, Límite: ${limit}, Estado: ${estado || 'todos'}`);
-  const list = await reservasDB.list({ usuarioId, page, limit, estado });
+  const list = usuarioId ? await reservaDB.listByUser(usuarioId) : await reservaDB.listAll();
   console.log(`[INFO] Reservas obtenidas exitosamente - ${list.length} reservas encontradas`);
   console.log(`[INFO] Retornando lista de reservas`);
   
@@ -98,19 +98,20 @@ export async function POST(req: Request) {
   const reservaInput = {
     idCompra: body.idCompra,
     usuarioId: body.usuarioId,
+    expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutos
     productos: await Promise.all(body.productos.map(async (p, index) => {
       const producto = await productoDB.getById(p.idProducto);
       return {
-        idProducto: p.idProducto,
+        productoId: p.idProducto,
+        productoNombre: producto?.nombre || 'Producto',
         cantidad: p.cantidad,
-        nombre: producto?.nombre || 'Producto',
         precioUnitario: productosData[index].precio
       };
     }))
   };
   
   console.log('[INFO] Creando reserva en la base de datos');
-  const result = await reservasDB.create(reservaInput);
+  const result = await reservaDB.create(reservaInput);
   
   console.log(`[INFO] Reserva creada exitosamente - IdCompra: ${body.idCompra}`);
   console.log('[INFO] Retornando respuesta de reserva');
