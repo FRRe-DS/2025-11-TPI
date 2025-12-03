@@ -33,7 +33,6 @@ export class KeycloakAuth {
       clientSecret: process.env.KEYCLOAK_CLIENT_SECRET || '',
       realm: process.env.KEYCLOAK_REALM || 'master'
     };
-    console.log('[INFO] Keycloak config:', this.config);
   }
 
   /**
@@ -67,13 +66,6 @@ export class KeycloakAuth {
     try {
       const introspectUrl = `${this.config.issuer}/protocol/openid-connect/token/introspect`;
       
-      console.log('[INFO] Introspecting token against:', introspectUrl);
-
-      console.log('[INFO] Parametros de introspeccion:', {
-        token: token,
-        client_id: this.config.clientId,
-        client_secret: this.config.clientSecret,
-      });
 
       const response = await fetch(introspectUrl, {
         method: 'POST',
@@ -86,12 +78,7 @@ export class KeycloakAuth {
           client_secret: this.config.clientSecret,
         }),
       });
-      console.log('[INFO] Introspection response:', response);
 
-      if (!response.ok) {
-        console.error('Token introspection failed:', response.statusText);
-        return null;
-      }
 
       const data = await response.json();
       
@@ -102,7 +89,6 @@ export class KeycloakAuth {
 
       return data;
     } catch (error) {
-      console.error('Token introspection error:', error);
       return null;
     }
   }

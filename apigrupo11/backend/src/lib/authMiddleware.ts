@@ -111,11 +111,9 @@ export async function requireAuth(
       
       // Si la introspección falla (por ejemplo, cliente sin permisos), usar validación JWKS como fallback
       if (!tokenData || !tokenData.active) {
-        console.log('[INFO] Token introspection unavailable, falling back to JWKS validation');
         const jwtPayload = await keycloak.validateToken(token, false);
         
         if (!jwtPayload) {
-          console.log('[INFO] Token validation failed, returning 401');
           return {
             error: NextResponse.json(
               { error: 'Invalid or expired token' },
