@@ -53,11 +53,12 @@ export default function DashboardPage() {
       }
 
       try {
-        // URL correcta para Docker en Windows
-        const response = await fetch('http://localhost:3000/api/productos?page=1&limit=5', {
+        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+        const response = await fetch(`${baseUrl}/api/productos?page=1&limit=5`, {
           headers: {
             'Authorization': `Bearer ${session.accessToken}`,
           },
+          method: 'GET',
         });
 
         if (response.ok) {

@@ -1,84 +1,65 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { theme } from '../../styles/theme';
 import type { IProducto } from '../../types/api.types';
 import MainLayout from '../../components/layout/MainLayoutNext';
 import { AddProductForm } from '../../components/inventory/AddProductForm';
+import { getProducts } from '../../services/stock.service';
 
 export default function InventoryPage() {
+  const { data: session } = useSession();
   const [productos, setProductos] = useState<IProducto[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
 
   useEffect(() => {
-    // Datos de ejemplo para mostrar la página
-    const mockProducts: IProducto[] = [
-      {
-        id: 1,
-        nombre: "Laptop Pro 15",
-        descripcion: "Laptop profesional de alto rendimiento",
-        precio: 1299.99,
-        stockDisponible: 25,
-        stockReservado: 5,
-        stockTotal: 30,
-        vendedorId: 1,
-        categoriaId: 1,
-        categoria: "Electrónicos",
-        pesoKg: 2.1,
-        fechaCreacion: "2025-01-15T10:00:00Z",
-        fechaActualizacion: "2025-10-20T15:30:00Z",
-        imagenes: []
-      },
-      {
-        id: 2,
-        nombre: "Mouse Inalámbrico",
-        descripcion: "Mouse ergonómico con conectividad Bluetooth",
-        precio: 45.99,
-        stockDisponible: 150,
-        stockReservado: 10,
-        stockTotal: 160,
-        vendedorId: 1,
-        categoriaId: 1,
-        categoria: "Accesorios",
-        pesoKg: 0.12,
-        fechaCreacion: "2025-02-01T09:00:00Z",
-        fechaActualizacion: "2025-10-18T11:45:00Z",
-        imagenes: []
-      }
-    ];
-    
-    setTimeout(() => {
-      // Intentamos cargar desde localStorage
+    const loadAllProducts = async () => {
+      setLoading(true);
+      const token = (session as any)?.accessToken;
+
       try {
-        const raw = localStorage.getItem('local_products_v1');
-        if (raw) {
-          setProductos(JSON.parse(raw));
-          setLoading(false);
-          return;
+        let page = 1;
+        const limit = 50; // tamaño de página razonable
+        let all: IProducto[] = [];
+        let hasNext = true;
+
+        while (hasNext) {
+          const resp = await getProducts(token, page, limit);
+          const items = Array.isArray(resp?.data) ? resp.data : [];
+          all = all.concat(items);
+          const nextUrl = (resp as any)?.pagination?.next;
+          if (nextUrl) {
+            page += 1;
+          } else {
+            hasNext = false;
+          }
         }
+
+        setProductos(all);
       } catch (err) {
-        console.warn('No se pudo leer localStorage productos', err);
+        console.error('Error cargando productos desde API (paginación):', err);
+        setProductos([]);
+      } finally {
+        setLoading(false);
       }
-      setProductos(mockProducts);
+    };
+
+    if (session) {
+      loadAllProducts();
+    } else {
       setLoading(false);
-    }, 1000);
-  }, []);
+      setProductos([]);
+    }
+  }, [session]);
 
   const handleAddProduct = (product: IProducto) => {
-    setProductos((prev) => {
-      const next = [product, ...prev];
-      try {
-        localStorage.setItem('local_products_v1', JSON.stringify(next));
-      } catch (err) {
-        console.warn('Error guardando productos en localStorage', err);
-      }
-      return next;
-    });
+    setProductos((prev) => [product, ...prev]);
     setShowAddForm(false);
+    addProductNotification(product);
   };
-
-  // También creamos una notificación local cuando se agrega un producto
+  
   const addProductNotification = (product: IProducto) => {
     try {
       const raw = localStorage.getItem('local_notifications_v1');
@@ -91,12 +72,7 @@ export default function InventoryPage() {
       };
       const next = [note, ...arr];
       localStorage.setItem('local_notifications_v1', JSON.stringify(next));
-      // notificamos al header para que recargue
-      try {
-        window.dispatchEvent(new Event('notificationsUpdated'));
-      } catch (e) {
-        /* ignore */
-      }
+      window.dispatchEvent(new Event('notificationsUpdated'));
     } catch (err) {
       console.warn('No se pudo guardar notificación', err);
     }
@@ -150,7 +126,7 @@ export default function InventoryPage() {
                           <div style={{ color: theme.colors.textSecondary }}>Reservado: {producto.stockReservado}</div>
                         </div>
                       </td>
-                      <td style={{ padding: '12px', fontSize: '14px', color: theme.colors.textPrimary }}>${producto.precio.toFixed(2)}</td>
+                      <td style={{ padding: '12px', fontSize: '14px', color: theme.colors.textPrimary }}>${Number(producto.precio).toFixed(2)}</td>
                       <td style={{ padding: '12px', fontSize: '14px' }}>
                         <button style={{ color: theme.colors.primary, marginRight: '12px', background: 'transparent', border: 'none', cursor: 'pointer' }}>Editar</button>
                         <button style={{ color: theme.colors.danger, background: 'transparent', border: 'none', cursor: 'pointer' }}>Eliminar</button>
