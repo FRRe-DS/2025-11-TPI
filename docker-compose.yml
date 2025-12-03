@@ -59,7 +59,7 @@ services:
       - postgres
 
   backend:
-    image: ghcr.io/frre-ds/2025-grupo-11-backend-stock:e646e8108d12c91e19faf51b583e273cee3f85aa
+    image: ghcr.io/frre-ds/2025-grupo-11-backend-stock:latest
     container_name: backend
     environment:
       # Database
