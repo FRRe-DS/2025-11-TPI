@@ -106,22 +106,44 @@ export async function requireAuth(
     const hasClientConfig = process.env.KEYCLOAK_CLIENT_ID && process.env.KEYCLOAK_CLIENT_SECRET;
 
     if (hasClientConfig) {
-      // Si hay client configurado, usar introspección
+      // Si hay client configurado, intentar usar introspección primero
       tokenData = await keycloak.introspectToken(token);
       
+      // Si la introspección falla (por ejemplo, cliente sin permisos), usar validación JWKS como fallback
       if (!tokenData || !tokenData.active) {
-        return {
-          error: NextResponse.json(
-            { error: 'Invalid or expired token' },
-            { status: 401 }
-          )
+        console.log('[INFO] Token introspection unavailable, falling back to JWKS validation');
+        const jwtPayload = await keycloak.validateToken(token, false);
+        
+        if (!jwtPayload) {
+          console.log('[INFO] Token validation failed, returning 401');
+          return {
+            error: NextResponse.json(
+              { error: 'Invalid or expired token' },
+              { status: 401 }
+            )
+          };
+        }
+        
+        // Convertir el payload JWT al formato esperado por el resto del código
+        const scopeValue = (jwtPayload as any).scope || '';
+        tokenData = {
+          active: true,
+          sub: jwtPayload.sub,
+          email: jwtPayload.email,
+          preferred_username: jwtPayload.preferred_username,
+          username: jwtPayload.preferred_username,
+          realm_access: jwtPayload.realm_access,
+          scope: scopeValue
         };
+        console.log('[INFO] Token validation successful, returning 200');
       }
     } else {
+      console.log('[INFO] No hay client, validando solo con JWKS');
       // Si no hay client, validar solo con JWKS (acepta cualquier client del realm)
-      tokenData = await keycloak.validateToken(token, false);
-      
-      if (!tokenData) {
+      const jwtPayload = await keycloak.validateToken(token, false);
+
+      if (!jwtPayload) {
+        console.log('[INFO] Token validation failed, returning 401');
         return {
           error: NextResponse.json(
             { error: 'Invalid or expired token' },
@@ -129,6 +151,19 @@ export async function requireAuth(
           )
         };
       }
+      
+      // Convertir el payload JWT al formato esperado
+      const scopeValue = (jwtPayload as any).scope || '';
+      tokenData = {
+        active: true,
+        sub: jwtPayload.sub,
+        email: jwtPayload.email,
+        preferred_username: jwtPayload.preferred_username,
+        username: jwtPayload.preferred_username,
+        realm_access: jwtPayload.realm_access,
+        scope: scopeValue
+      };
+      console.log('[INFO] Token validation successful, returning 200');
     }
 
     // Verificar scopes si es necesario
