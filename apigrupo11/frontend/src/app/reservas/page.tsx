@@ -25,15 +25,19 @@ export default function ReservasPage() {
 
       try {
         const token = (session as any)?.accessToken;
-        const data = await listReservas(token, 1, 50);
-        setReservas(data.data || []);
+        const userId = (session as any)?.user?.id;
+
+        const response = await listReservas(token, userId, 1, 50);
+
+        setReservas(response.data);
       } catch (err: any) {
         console.error('Error cargando reservas:', err);
         setError(err?.message || 'Error desconocido');
       } finally {
         setLoading(false);
       }
-    };
+  };
+
 
     fetchReservas();
   }, [session]);
@@ -48,11 +52,27 @@ export default function ReservasPage() {
           </div>
         </div>
 
-        <div style={{ marginTop: theme.spacing.md, backgroundColor: theme.colors.surface, borderRadius: theme.borderRadius.lg, boxShadow: theme.shadows.sm, border: `1px solid ${theme.colors.border}`, overflow: 'hidden' }}>
+        <div style={{
+          marginTop: theme.spacing.md,
+          backgroundColor: theme.colors.surface,
+          borderRadius: theme.borderRadius.lg,
+          boxShadow: theme.shadows.sm,
+          border: `1px solid ${theme.colors.border}`,
+          overflow: 'hidden'
+        }}>
           <div style={{ overflowX: 'auto' }}>
-            {loading && <div style={{ padding: '24px', color: theme.colors.textSecondary }}>Cargando reservas...</div>}
 
-            {error && <div style={{ padding: '24px', color: '#ff6b6b' }}>Error: {error}</div>}
+            {loading && (
+              <div style={{ padding: '24px', color: theme.colors.textSecondary }}>
+                Cargando reservas...
+              </div>
+            )}
+
+            {error && (
+              <div style={{ padding: '24px', color: '#ff6b6b' }}>
+                Error: {error}
+              </div>
+            )}
 
             {!loading && !error && (
               <table style={{ width: '100%', borderCollapse: 'collapse', color: theme.colors.textPrimary }}>
@@ -73,15 +93,29 @@ export default function ReservasPage() {
                       <td style={{ padding: '12px' }}>{r.productoNombre}</td>
                       <td style={{ padding: '12px' }}>{r.cantidad}</td>
                       <td style={{ padding: '12px', color: theme.colors.textSecondary }}>{r.usuarioId}</td>
-                      <td style={{ padding: '12px', color: theme.colors.textSecondary }}>{new Date(r.fechaReserva).toLocaleString()}</td>
+                      <td style={{ padding: '12px', color: theme.colors.textSecondary }}>
+                        {new Date(r.fechaReserva).toLocaleString()}
+                      </td>
                       <td style={{ padding: '12px' }}>
-                        <span style={{ padding: '6px 10px', borderRadius: theme.borderRadius.md, backgroundColor: r.estado === 'activa' ? '#2980b9' : r.estado === 'completada' ? '#27ae60' : '#95a5a6', color: theme.colors.textOnPrimary, fontWeight: 700, fontSize: '13px' }}>{r.estado}</span>
+                        <span style={{
+                          padding: '6px 10px',
+                          borderRadius: theme.borderRadius.md,
+                          backgroundColor:
+                            r.estado === 'activa' ? '#2980b9' :
+                            r.estado === 'completada' ? '#27ae60' : '#95a5a6',
+                          color: theme.colors.textOnPrimary,
+                          fontWeight: 700,
+                          fontSize: '13px'
+                        }}>
+                          {r.estado}
+                        </span>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             )}
+
           </div>
         </div>
       </div>
