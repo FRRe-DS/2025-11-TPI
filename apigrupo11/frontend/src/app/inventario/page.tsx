@@ -3,14 +3,16 @@
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { theme } from '../../styles/theme';
-import type { IProducto } from '../../types/api.types';
+import type { IProducto, ICategoria } from '../../types/api.types';
 import MainLayout from '../../components/layout/MainLayoutNext';
 import { AddProductForm } from '../../components/inventory/AddProductForm';
 import { getProducts } from '../../services/stock.service';
+import { listCategories } from '../../services/stock.service';
 
 export default function InventoryPage() {
   const { data: session } = useSession();
   const [productos, setProductos] = useState<IProducto[]>([]);
+  const [categories, setCategories] = useState<ICategoria[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
 
@@ -38,6 +40,14 @@ export default function InventoryPage() {
         }
 
         setProductos(all);
+        // Cargar categorías para el formulario
+        try {
+          const cats = await listCategories(token);
+          setCategories(cats);
+        } catch (err) {
+          console.warn('No se pudieron cargar las categorías:', err);
+          setCategories([]);
+        }
       } catch (err) {
         console.error('Error cargando productos desde API (paginación):', err);
         setProductos([]);
@@ -159,6 +169,8 @@ export default function InventoryPage() {
                   handleAddProduct(p);
                   addProductNotification(p);
                 }}
+                token={(session as any)?.accessToken}
+                categories={categories}
               />
             </div>
           </div>

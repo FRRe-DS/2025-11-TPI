@@ -99,7 +99,6 @@ export const db = {
       precio: data.precio,
       stockDisponible: data.stockInicial,
       pesoKg: data.pesoKg,
-      imagenes: data.imagenes,
       categoriaIds: data.categoriaIds,
       categorias: data.categoriaIds?.map((cid) => categorias.get(cid)!).filter(Boolean) || [],
     };

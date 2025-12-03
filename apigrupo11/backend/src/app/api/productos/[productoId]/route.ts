@@ -50,14 +50,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ pr
       return badRequest("Los datos proporcionados son inválidos.");
     }
     
-    if (Array.isArray(body.imagenes)) {
-      const principals = body.imagenes.filter((i) => i?.esPrincipal === true).length;
-      if (principals > 1) {
-        console.log('[WARN] Validación fallida - Múltiples imágenes principales');
-        return badRequest("Los datos proporcionados son inválidos.", "Solo una imagen puede ser la principal");
-      }
-    }
-    
     console.log(`[INFO] Actualizando producto en la base de datos - ID: ${id}`);
     const updated = await productoDB.update(id, body);
     if (!updated) {

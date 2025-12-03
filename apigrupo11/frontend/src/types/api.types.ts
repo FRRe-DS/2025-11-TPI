@@ -3,14 +3,6 @@
 // ESTRUCTURAS DE DATOS PRINCIPALES
 
 /**
- * Define la estructura de una imagen asociada a un producto.
- */
-export interface IImagen {
-  url: string;
-  esPrincipal: boolean;
-}
-
-/**
  * Define las dimensiones de un producto.
  */
 export interface IDimensiones {
@@ -23,10 +15,11 @@ export interface IDimensiones {
  * Define la ubicación de un producto en el almacén.
  */
 export interface IUbicacion {
-  almacen: string;
-  pasillo?: string;
-  estante?: string;
-  nivel?: string;
+  street: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  country?: string;
 }
 
 /**
@@ -44,10 +37,10 @@ export interface IProducto {
   vendedorId: number;
   categoriaId: number;
   categoria: string;
+  categorias?: ICategoria[];
   pesoKg: number;
   fechaCreacion: string; // Formato ISO 8601
   fechaActualizacion: string; // Formato ISO 8601
-  imagenes: IImagen[];
   dimensiones?: IDimensiones; // Added dimensions
   ubicacion?: IUbicacion; // Added location
 }
@@ -107,4 +100,48 @@ export interface IPaginacion {
 export interface IApiListResponse<T> {
   data: T[];
   pagination: IPaginacion;
+}
+
+// INPUTS PARA CREAR/ACTUALIZAR EN BACKEND
+
+export interface IProductoInputDimensiones {
+  largoCm?: number;
+  anchoCm?: number;
+  altoCm?: number;
+}
+
+export interface IProductoInputUbicacion {
+  street: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+}
+
+export interface IProductoInput {
+  nombre: string;
+  descripcion?: string;
+  precio: number;
+  stockInicial: number;
+  pesoKg?: number;
+  dimensiones?: IProductoInputDimensiones;
+  ubicacion?: IProductoInputUbicacion;
+  categoriaIds?: number[];
+}
+
+export interface IProductoUpdate {
+  nombre?: string;
+  descripcion?: string;
+  precio?: number;
+  stockInicial?: number;
+  pesoKg?: number;
+  dimensiones?: IProductoInputDimensiones | null;
+  ubicacion?: IProductoInputUbicacion | null;
+  categoriaIds?: number[];
+}
+
+export interface ICategoria {
+  id: number;
+  nombre: string;
+  descripcion?: string | null;
 }

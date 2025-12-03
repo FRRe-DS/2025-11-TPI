@@ -135,7 +135,9 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
         : theme.colors.danger;
 
   const ubicacionText = product.ubicacion
-    ? `${product.ubicacion.almacen}${product.ubicacion.pasillo ? ` - ${product.ubicacion.pasillo}` : ''}`
+    ? [product.ubicacion.street, product.ubicacion.city, product.ubicacion.state]
+        .filter(Boolean)
+        .join(', ')
     : 'Sin ubicación';
 
   const fechaActualizacion = new Date(
@@ -157,14 +159,9 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <img
-        src={
-          product.imagenes[0]?.url ||
-          'https://placehold.co/60x60/F8FAFC/CBD5E1?text=IMG'
-        }
-        alt={product.nombre}
-        style={styles.image}
-      />
+      <div style={{ ...styles.image, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: theme.colors.textSecondary }}>
+        IMG
+      </div>
 
       <span style={styles.sku}>#{product.id}</span>
 
