@@ -33,6 +33,7 @@ export class KeycloakAuth {
       clientSecret: process.env.KEYCLOAK_CLIENT_SECRET || '',
       realm: process.env.KEYCLOAK_REALM || 'master'
     };
+    console.log('[INFO] Keycloak config:', this.config);
   }
 
   /**
