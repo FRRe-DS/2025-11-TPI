@@ -13,8 +13,19 @@ RUN npm install
 # Copiar el resto del proyecto
 COPY . .
 
+# Crear archivo .env temporal con valores por defecto para el build
+# Las variables reales se pasarán en runtime desde docker-compose
+RUN echo "DATABASE_URL=postgresql://postgres:password@localhost:5432/stock_management" > .env && \
+    echo "KEYCLOAK_ISSUER=http://localhost:8080/realms/ds-2025-realm" >> .env && \
+    echo "KEYCLOAK_REALM=ds-2025-realm" >> .env && \
+    echo "KEYCLOAK_CLIENT_ID=grupo-11" >> .env && \
+    echo "KEYCLOAK_CLIENT_SECRET=placeholder" >> .env
+
 # Construir Next.js
 RUN npm run build
+
+# Eliminar el .env temporal después del build
+RUN rm -f .env
 
 # Exponer puerto
 EXPOSE 3000
