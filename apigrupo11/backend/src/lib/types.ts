@@ -2,11 +2,6 @@
 
 export type EstadoReserva = "confirmado" | "pendiente" | "cancelado";
 
-export interface ImagenProducto {
-  url: string; // uri
-  esPrincipal: boolean;
-}
-
 export interface Categoria {
   id: number;
   nombre: string;
@@ -36,7 +31,6 @@ export interface Producto {
   pesoKg?: number; // float
   dimensiones?: Dimensiones;
   ubicacion?: UbicacionAlmacen;
-  imagenes?: ImagenProducto[];
   categorias?: Categoria[] | null;
 }
 
@@ -48,7 +42,6 @@ export interface ProductoInput {
   pesoKg?: number;
   dimensiones?: Dimensiones;
   ubicacion?: UbicacionAlmacen;
-  imagenes?: ImagenProducto[];
   categoriaIds?: number[]; // for input only
 }
 
@@ -60,7 +53,6 @@ export interface ProductoUpdate {
   pesoKg?: number;
   dimensiones?: Dimensiones;
   ubicacion?: UbicacionAlmacen;
-  imagenes?: ImagenProducto[];
   categoriaIds?: number[];
 }
 

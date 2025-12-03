@@ -72,7 +72,6 @@ export const productoDB = {
         p.peso_kg as "pesoKg",
         p.dimensiones,
         p.ubicacion,
-        p.imagenes,
         COALESCE(
           json_agg(
             CASE WHEN c.id IS NOT NULL 
@@ -106,7 +105,7 @@ export const productoDB = {
       baseQuery += ' WHERE ' + conditions.join(' AND ');
     }
 
-    baseQuery += ' GROUP BY p.id, p.nombre, p.descripcion, p.precio, p.stock_disponible, p.peso_kg, p.dimensiones, p.ubicacion, p.imagenes';
+    baseQuery += ' GROUP BY p.id, p.nombre, p.descripcion, p.precio, p.stock_disponible, p.peso_kg, p.dimensiones, p.ubicacion';
     baseQuery += ' ORDER BY p.id';
 
     // Get total count before pagination
@@ -150,7 +149,6 @@ export const productoDB = {
         p.peso_kg as "pesoKg",
         p.dimensiones,
         p.ubicacion,
-        p.imagenes,
         COALESCE(
           json_agg(
             CASE WHEN c.id IS NOT NULL 
@@ -163,7 +161,7 @@ export const productoDB = {
       LEFT JOIN producto_categorias pc ON p.id = pc.producto_id
       LEFT JOIN categorias c ON pc.categoria_id = c.id
       WHERE p.id = $1
-      GROUP BY p.id, p.nombre, p.descripcion, p.precio, p.stock_disponible, p.peso_kg, p.dimensiones, p.ubicacion, p.imagenes
+      GROUP BY p.id, p.nombre, p.descripcion, p.precio, p.stock_disponible, p.peso_kg, p.dimensiones, p.ubicacion
     `;
 
     const rows = await query<Producto>(queryText, [id]);
@@ -176,10 +174,10 @@ export const productoDB = {
       // Insert the product
       const insertQuery = `
         INSERT INTO productos (
-          nombre, descripcion, precio, stock_disponible, peso_kg, dimensiones, ubicacion, imagenes
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          nombre, descripcion, precio, stock_disponible, peso_kg, dimensiones, ubicacion
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING id, nombre, descripcion, precio, stock_disponible as "stockDisponible", 
-                  peso_kg as "pesoKg", dimensiones, ubicacion, imagenes
+                  peso_kg as "pesoKg", dimensiones, ubicacion
       `;
 
       const productValues = [
@@ -189,8 +187,7 @@ export const productoDB = {
         data.stockInicial,
         data.pesoKg || null,
         data.dimensiones ? JSON.stringify(data.dimensiones) : null,
-        data.ubicacion ? JSON.stringify(data.ubicacion) : null,
-        data.imagenes ? JSON.stringify(data.imagenes) : null
+        data.ubicacion ? JSON.stringify(data.ubicacion) : null
       ];
 
       const productResult = await client.query(insertQuery, productValues);
@@ -278,12 +275,6 @@ export const productoDB = {
         paramIndex++;
       }
 
-      if (data.imagenes !== undefined) {
-        updates.push(`imagenes = $${paramIndex}`);
-        values.push(data.imagenes ? JSON.stringify(data.imagenes) : null);
-        paramIndex++;
-      }
-
       if (updates.length === 0) return null;
 
       const updateQuery = `
@@ -291,7 +282,7 @@ export const productoDB = {
         SET ${updates.join(', ')}
         WHERE id = $${paramIndex}
         RETURNING id, nombre, descripcion, precio, stock_disponible as "stockDisponible",
-                  peso_kg as "pesoKg", dimensiones, ubicacion, imagenes
+            peso_kg as "pesoKg", dimensiones, ubicacion
       `;
       values.push(id);
 
