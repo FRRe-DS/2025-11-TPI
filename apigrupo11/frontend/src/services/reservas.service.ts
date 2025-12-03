@@ -7,7 +7,7 @@ export async function listReservas(
   limit = 50
 ): Promise<IApiListResponse<IReserva>> {
 
-  const url = `http://localhost:3000/api/reservas?usuarioId=${usuarioId}&page=${page}&limit=${limit}`;
+  const url = `http://localhost:3000/api/reservas`;
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',

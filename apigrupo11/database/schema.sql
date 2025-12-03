@@ -33,6 +33,7 @@ CREATE TABLE productos (
     peso_kg DECIMAL(8,3) CHECK (peso_kg >= 0),
     dimensiones JSONB, -- {largoCm, anchoCm, altoCm}
     ubicacion JSONB,   -- {street, city, state, postal_code, country}
+    imagenes JSONB,    -- array of {url, esPrincipal}
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -117,7 +118,7 @@ INSERT INTO categorias (nombre, descripcion) VALUES
     ('Salud', 'Productos para el cuidado de la salud'),
     ('Bebés', 'Productos para bebés y maternidad');
 
-INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, dimensiones, ubicacion) VALUES
+INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, dimensiones, ubicacion, imagenes) VALUES
     (
         'Laptop Gaming RGB',
         'Laptop para gaming con iluminación RGB y procesador de alta gama',
@@ -125,7 +126,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         15,
         2.5,
         '{"largoCm": 35, "anchoCm": 25, "altoCm": 3}',
-        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}'
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/laptop1.jpg", "esPrincipal": true}, {"url": "https://example.com/laptop2.jpg", "esPrincipal": false}]'
     ),
     (
         'Camiseta Deportiva',
@@ -134,7 +136,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         100,
         0.2,
         '{"largoCm": 70, "anchoCm": 50, "altoCm": 1}',
-        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}'
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/shirt1.jpg", "esPrincipal": true}]'
     ),
     (
         'Mesa de Comedor',
@@ -143,7 +146,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         8,
         25.0,
         '{"largoCm": 180, "anchoCm": 90, "altoCm": 75}',
-        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}'
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/table1.jpg", "esPrincipal": true}]'
     ),
     (
         'Smartphone X Pro',
@@ -152,7 +156,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         50,
         0.19,
         '{"largoCm": 16, "anchoCm": 7.5, "altoCm": 0.8}',
-        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}'
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/phone1.jpg", "esPrincipal": true}]'
     ),
     (
         'Auriculares Bluetooth',
@@ -161,7 +166,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         75,
         0.25,
         '{"largoCm": 20, "anchoCm": 18, "altoCm": 8}',
-        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}'
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/headphones1.jpg", "esPrincipal": true}]'
     ),
     (
         'Jean Classic Fit',
@@ -170,7 +176,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         120,
         0.5,
         '{"largoCm": 100, "anchoCm": 40, "altoCm": 2}',
-        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}'
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/jeans1.jpg", "esPrincipal": true}]'
     ),
     (
         'Zapatillas Running',
@@ -179,7 +186,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         60,
         0.4,
         '{"largoCm": 30, "anchoCm": 20, "altoCm": 12}',
-        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}'
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/shoes1.jpg", "esPrincipal": true}]'
     ),
     (
         'Silla Ergonómica',
@@ -188,7 +196,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         30,
         15.0,
         '{"largoCm": 65, "anchoCm": 65, "altoCm": 120}',
-        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}'
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/chair1.jpg", "esPrincipal": true}]'
     ),
     (
         'Lámpara LED Moderna',
@@ -197,7 +206,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         45,
         2.5,
         '{"largoCm": 30, "anchoCm": 30, "altoCm": 150}',
-        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}'
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/lamp1.jpg", "esPrincipal": true}]'
     ),
     (
         'Pelota de Fútbol',
@@ -206,7 +216,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         150,
         0.43,
         '{"largoCm": 22, "anchoCm": 22, "altoCm": 22}',
-        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}'
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/ball1.jpg", "esPrincipal": true}]'
     ),
     (
         'Bicicleta Mountain Bike',
@@ -215,7 +226,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         12,
         14.0,
         '{"largoCm": 180, "anchoCm": 65, "altoCm": 110}',
-        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}'
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/bike1.jpg", "esPrincipal": true}]'
     ),
     (
         'El Principito',
@@ -224,7 +236,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         200,
         0.15,
         '{"largoCm": 20, "anchoCm": 13, "altoCm": 1}',
-        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}'
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/book1.jpg", "esPrincipal": true}]'
     ),
     (
         'Cien Años de Soledad',
@@ -233,7 +246,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         180,
         0.35,
         '{"largoCm": 23, "anchoCm": 15, "altoCm": 3}',
-        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}'
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/book2.jpg", "esPrincipal": true}]'
     ),
     (
         'Lego Star Wars Set',
@@ -242,7 +256,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         40,
         0.8,
         '{"largoCm": 35, "anchoCm": 25, "altoCm": 10}',
-        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}'
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/lego1.jpg", "esPrincipal": true}]'
     ),
     (
         'Muñeca Barbie',
@@ -251,7 +266,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         90,
         0.3,
         '{"largoCm": 30, "anchoCm": 15, "altoCm": 8}',
-        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}'
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/barbie1.jpg", "esPrincipal": true}]'
     ),
     (
         'Café Colombiano Premium',
@@ -260,7 +276,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         250,
         0.5,
         '{"largoCm": 20, "anchoCm": 10, "altoCm": 8}',
-        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}'
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/coffee1.jpg", "esPrincipal": true}]'
     ),
     (
         'Aceite de Oliva Extra Virgen',
@@ -269,7 +286,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         100,
         1.0,
         '{"largoCm": 25, "anchoCm": 8, "altoCm": 8}',
-        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}'
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/oil1.jpg", "esPrincipal": true}]'
     ),
     (
         'Crema Facial Antiarrugas',
@@ -278,7 +296,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         80,
         0.1,
         '{"largoCm": 8, "anchoCm": 8, "altoCm": 6}',
-        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}'
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/cream1.jpg", "esPrincipal": true}]'
     ),
     (
         'Shampoo Reparador',
@@ -287,7 +306,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         150,
         0.45,
         '{"largoCm": 20, "anchoCm": 8, "altoCm": 8}',
-        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}'
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/shampoo1.jpg", "esPrincipal": true}]'
     ),
     (
         'Filtro de Aire Automotriz',
@@ -296,7 +316,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         70,
         0.3,
         '{"largoCm": 25, "anchoCm": 20, "altoCm": 8}',
-        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}'
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/filter1.jpg", "esPrincipal": true}]'
     ),
     (
         'Aceite de Motor 10W40',
@@ -305,7 +326,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         55,
         3.5,
         '{"largoCm": 25, "anchoCm": 15, "altoCm": 20}',
-        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}'
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/oil-motor1.jpg", "esPrincipal": true}]'
     ),
     (
         'Alimento Balanceado para Perros',
@@ -314,7 +336,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         45,
         15.0,
         '{"largoCm": 60, "anchoCm": 40, "altoCm": 15}',
-        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}'
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/dogfood1.jpg", "esPrincipal": true}]'
     ),
     (
         'Arena para Gatos',
@@ -323,7 +346,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         85,
         10.0,
         '{"largoCm": 45, "anchoCm": 30, "altoCm": 12}',
-        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}'
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/catlitter1.jpg", "esPrincipal": true}]'
     ),
     (
         'Guitarra Acústica',
@@ -332,7 +356,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         20,
         2.0,
         '{"largoCm": 100, "anchoCm": 38, "altoCm": 12}',
-        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}'
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/guitar1.jpg", "esPrincipal": true}]'
     ),
     (
         'Teclado Musical 61 Teclas',
@@ -341,7 +366,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         25,
         4.5,
         '{"largoCm": 95, "anchoCm": 35, "altoCm": 12}',
-        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}'
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/keyboard1.jpg", "esPrincipal": true}]'
     ),
     (
         'Set de Herramientas de Jardín',
@@ -350,7 +376,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         35,
         3.0,
         '{"largoCm": 90, "anchoCm": 30, "altoCm": 10}',
-        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}'
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/gardentools1.jpg", "esPrincipal": true}]'
     ),
     (
         'Maceta Decorativa Grande',
@@ -359,7 +386,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         50,
         5.0,
         '{"largoCm": 40, "anchoCm": 40, "altoCm": 35}',
-        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}'
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/pot1.jpg", "esPrincipal": true}]'
     ),
     (
         'Cuaderno Universitario A4',
@@ -368,7 +396,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         300,
         0.5,
         '{"largoCm": 30, "anchoCm": 21, "altoCm": 2}',
-        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}'
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/notebook1.jpg", "esPrincipal": true}]'
     ),
     (
         'Set de Bolígrafos',
@@ -377,7 +406,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         200,
         0.15,
         '{"largoCm": 20, "anchoCm": 10, "altoCm": 2}',
-        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}'
+        '{"street": "Av. Corrientes 1234", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1043AAZ", "country": "AR"}',
+        '[{"url": "https://example.com/pens1.jpg", "esPrincipal": true}]'
     ),
     (
         'Termómetro Digital',
@@ -386,7 +416,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         100,
         0.2,
         '{"largoCm": 15, "anchoCm": 10, "altoCm": 5}',
-        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}'
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/thermometer1.jpg", "esPrincipal": true}]'
     ),
     (
         'Vitaminas Multivitamínico',
@@ -395,7 +426,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         120,
         0.1,
         '{"largoCm": 12, "anchoCm": 6, "altoCm": 6}',
-        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}'
+        '{"street": "Av. Santa Fe 5678", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1425BGH", "country": "AR"}',
+        '[{"url": "https://example.com/vitamins1.jpg", "esPrincipal": true}]'
     ),
     (
         'Pañales Recién Nacido',
@@ -404,7 +436,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         150,
         1.5,
         '{"largoCm": 35, "anchoCm": 25, "altoCm": 15}',
-        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}'
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/diapers1.jpg", "esPrincipal": true}]'
     ),
     (
         'Biberón Anticólico',
@@ -413,7 +446,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock_disponible, peso_kg, d
         95,
         0.15,
         '{"largoCm": 20, "anchoCm": 8, "altoCm": 8}',
-        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}'
+        '{"street": "Av. Cabildo 9876", "city": "Buenos Aires", "state": "CABA", "postal_code": "C1426AAA", "country": "AR"}',
+        '[{"url": "https://example.com/bottle1.jpg", "esPrincipal": true}]'
     );
 
 -- Assign categories to products
@@ -464,6 +498,7 @@ SELECT
     p.peso_kg,
     p.dimensiones,
     p.ubicacion,
+    p.imagenes,
     p.created_at,
     p.updated_at,
     COALESCE(
@@ -477,4 +512,5 @@ SELECT
 FROM productos p
 LEFT JOIN producto_categorias pc ON p.id = pc.producto_id
 LEFT JOIN categorias c ON pc.categoria_id = c.id
-GROUP BY p.id, p.nombre, p.descripcion, p.precio, p.stock_disponible, p.peso_kg, p.dimensiones, p.ubicacion, p.created_at, p.updated_at;
+GROUP BY p.id, p.nombre, p.descripcion, p.precio, p.stock_disponible, p.peso_kg, p.dimensiones, p.ubicacion, p.imagenes, p.created_at, p.updated_at;
+
