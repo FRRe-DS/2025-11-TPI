@@ -39,13 +39,15 @@ export class KeycloakAuth {
    * Obtiene las claves públicas de Keycloak para validar JWTs
    */
   private async getJWKS(): Promise<any> {
-    const jwksUrl = `${this.config.issuer}/protocol/openid-connect/certs`;
+    const issuer = process.env.KEYCLOAK_ISSUER || this.config.issuer;
+    const jwksUrl = `${issuer}/protocol/openid-connect/certs`;
     
     if (this.jwksCache.has(jwksUrl)) {
       return this.jwksCache.get(jwksUrl);
     }
 
     try {
+      console.log('[INFO] Fetching JWKS from:', jwksUrl);
       const response = await fetch(jwksUrl);
       const jwks = await response.json();
       this.jwksCache.set(jwksUrl, jwks);
@@ -117,9 +119,13 @@ export class KeycloakAuth {
       // Importar la clave JWK
       const publicKey = await importJWK(key);
 
+      // IMPORTANTE: Leer el issuer en runtime
+      const issuer = process.env.KEYCLOAK_ISSUER || this.config.issuer;
+      console.log('[INFO] Validating token against issuer:', issuer);
+
       // Verificar el JWT - solo validamos el issuer (realm)
       const { payload } = await jwtVerify(token, publicKey, {
-        issuer: this.config.issuer,
+        issuer: issuer,
       });
 
       // Validación opcional del clientId
