@@ -9,7 +9,7 @@ lerna-debug.log*
 
 .next/
 node_modules/
-.env.local
+
 build/
 dist/
 
