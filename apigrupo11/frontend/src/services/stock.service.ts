@@ -20,7 +20,7 @@ export async function getProducts(token?: string, page = 1, limit = 20, q?: stri
 
   try {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (token && token !== 'undefined' && token !== 'null') headers['Authorization'] = `Bearer ${token}`;
     // Log de diagnóstico para identificar base URL y query
     if (typeof window !== 'undefined') console.debug('[stock.service] GET', url);
 

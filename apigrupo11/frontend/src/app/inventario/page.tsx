@@ -9,7 +9,7 @@ import { AddProductForm } from '../../components/inventory/AddProductForm';
 import { getProducts, listCategories, deleteProduct } from '../../services/stock.service';
 
 export default function InventoryPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [productos, setProductos] = useState<IProducto[]>([]);
   const [categories, setCategories] = useState<ICategoria[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,8 +21,20 @@ export default function InventoryPage() {
 
   useEffect(() => {
     const loadAllProducts = async () => {
-      setLoading(true);
       const token = (session as any)?.accessToken;
+      
+      // Skip fetch if no token and not in a "skipAuth" environment, or if session is still loading
+      const skipAuth = typeof window !== 'undefined' && (['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname));
+      
+      // Si se requiere autenticación en el backend y no tenemos token, no intentamos el fetch
+      // para evitar el error 401 en la consola.
+      if (!token && !skipAuth) {
+         // Opcional: Podrías redirigir al login aquí o simplemente no cargar nada
+         setLoading(false);
+         return;
+      }
+
+      setLoading(true);
 
       try {
         let page = 1;
@@ -53,20 +65,17 @@ export default function InventoryPage() {
         }
       } catch (err) {
         console.error('Error cargando productos desde API (paginación):', err);
+        // Si falla la carga (ej. 401), dejamos la lista vacía o manejamos el error visualmente
         setProductos([]);
       } finally {
         setLoading(false);
       }
     };
 
-    const skipAuth = typeof window !== 'undefined' && (['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname));
-    if (session || skipAuth) {
-      loadAllProducts();
-    } else {
-      setLoading(false);
-      setProductos([]);
-    }
-  }, [session]);
+    if (status === 'loading') return; // Wait for session to load
+    
+    loadAllProducts();
+  }, [session, status]);
 
   const handleAddProduct = (product: IProducto) => {
     setProductos((prev) => [product, ...prev]);
