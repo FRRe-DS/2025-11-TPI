@@ -208,11 +208,12 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
   useEffect(() => {
   const fetchCategorias = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/categorias");
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+      const res = await fetch(`${baseUrl}/api/categorias`);
       const data = await res.json();
       setLocalCategories(data);
     } catch (err) {
-      console.error("Error cargando categorías:", err);
+      console.error('Error cargando categorías:', err);
     } finally {
       setLoadingCategories(false);
     }

@@ -27,6 +27,9 @@ export default function ReservasPage() {
         const token = (session as any)?.accessToken;
         const userId = (session as any)?.user?.id;
 
+        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+        console.debug('[Reservas] listReservas -> baseUrl=', baseUrl, 'tokenPresent=', !!token);
+
         const response = await listReservas(token, userId, 1, 50);
 
         setReservas(response.data);
@@ -87,9 +90,9 @@ export default function ReservasPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {reservas.map((r) => (
-                    <tr key={r.id} style={{ borderBottom: `1px solid ${theme.colors.border}` }}>
-                      <td style={{ padding: '12px', fontWeight: 600 }}>{r.id}</td>
+                  {reservas.map((r, idx) => (
+                    <tr key={r.id ?? `res-${idx}`} style={{ borderBottom: `1px solid ${theme.colors.border}` }}>
+                      <td style={{ padding: '12px', fontWeight: 600 }}>{r.id ?? `#${idx+1}`}</td>
                       <td style={{ padding: '12px' }}>{r.productoNombre}</td>
                       <td style={{ padding: '12px' }}>{r.cantidad}</td>
                       <td style={{ padding: '12px', color: theme.colors.textSecondary }}>{r.usuarioId}</td>

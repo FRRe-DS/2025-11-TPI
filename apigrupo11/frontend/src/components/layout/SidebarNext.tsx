@@ -66,7 +66,6 @@ export const SidebarNext: React.FC = () => {
         <SidebarLinkNext to="/dashboard" icon={<FiHome />}>Dashboard</SidebarLinkNext>
         <SidebarLinkNext to="/inventario" icon={<FiBox />}>Inventario</SidebarLinkNext>
         <SidebarLinkNext to="/reservas" icon={<FiClipboard />}>Reservas</SidebarLinkNext>
-        <SidebarLinkNext to="/auditoria" icon={<FiSearch />}>Auditoría</SidebarLinkNext>
       </nav>
 
       <div style={styles.logoutSection}>

@@ -67,25 +67,6 @@ export default function InventoryPage() {
   const handleAddProduct = (product: IProducto) => {
     setProductos((prev) => [product, ...prev]);
     setShowAddForm(false);
-    addProductNotification(product);
-  };
-  
-  const addProductNotification = (product: IProducto) => {
-    try {
-      const raw = localStorage.getItem('local_notifications_v1');
-      const arr = raw ? JSON.parse(raw) : [];
-      const note = {
-        id: Date.now(),
-        text: `Producto "${product.nombre}" agregado.`,
-        read: false,
-        date: new Date().toISOString(),
-      };
-      const next = [note, ...arr];
-      localStorage.setItem('local_notifications_v1', JSON.stringify(next));
-      window.dispatchEvent(new Event('notificationsUpdated'));
-    } catch (err) {
-      console.warn('No se pudo guardar notificación', err);
-    }
   };
 
   return (
@@ -167,7 +148,6 @@ export default function InventoryPage() {
                 onClose={() => setShowAddForm(false)}
                 onAdd={(p) => {
                   handleAddProduct(p);
-                  addProductNotification(p);
                 }}
                 token={(session as any)?.accessToken}
                 categories={categories}
