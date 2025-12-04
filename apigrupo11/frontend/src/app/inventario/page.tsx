@@ -17,6 +17,8 @@ export default function InventoryPage() {
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; nombre: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [editTarget, setEditTarget] = useState<IProducto | null>(null);
+
 
   useEffect(() => {
     const loadAllProducts = async () => {
@@ -194,7 +196,7 @@ export default function InventoryPage() {
                       </td>
                       <td style={{ padding: '12px', fontSize: '14px', color: theme.colors.textPrimary }}>${Number(producto.precio).toFixed(2)}</td>
                       <td style={{ padding: '12px', fontSize: '14px' }}>
-                        <button style={{ color: theme.colors.primary, marginRight: '12px', background: 'transparent', border: 'none', cursor: 'pointer' }}>Editar</button>
+                        <button onClick={() => setEditTarget(producto)} style={{ color: theme.colors.primary, marginRight: '12px', background: 'transparent', border: 'none', cursor: 'pointer' }}>Editar</button>
                         <button onClick={() => initiateDelete(producto.id, producto.nombre)} style={{ color: theme.colors.danger, background: 'transparent', border: 'none', cursor: 'pointer' }}>Eliminar</button>
                       </td>
                     </tr>
@@ -230,6 +232,39 @@ export default function InventoryPage() {
             </div>
           </div>
         )}
+        {/*Modal para Editar producto */}
+        {editTarget && (
+          <div style={{ position: 'fixed',inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '16px'}}>
+            <div style={{ background: theme.colors.surface, borderRadius: theme.borderRadius.lg, maxWidth: '64rem', width: '100%', maxHeight: '90vh', overflowY: 'auto', border: `1px solid ${theme.colors.border}`}}>
+              <div style={{ padding: '16px', borderBottom: `1px solid ${theme.colors.border}` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: theme.colors.textPrimary }}>Editar Producto</h2>
+                  <button
+                    onClick={() => setEditTarget(null)} style={{color: theme.colors.textSecondary, background: 'transparent',border: 'none', cursor: 'pointer' }} >
+                    <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <AddProductForm
+                mode="edit"
+                product={editTarget}
+                token={(session as any)?.accessToken}
+                categories={categories}
+                onClose={() => setEditTarget(null)}
+                onUpdate={(updatedProduct) => {
+                  setProductos((prev) =>
+                    prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
+                  );
+                  setEditTarget(null);
+                }}
+              />
+            </div>
+          </div>
+        )}
+
 
         {/* Confirmación de eliminación */}
         {deleteTarget && (
