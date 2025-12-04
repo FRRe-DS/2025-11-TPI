@@ -260,25 +260,34 @@ export async function deleteProduct(token: string, id: number): Promise<void> {
   const url = `${baseUrl}/api/productos/${id}`;
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
+  
+  console.log('[stock.service] DELETE producto:', { id, url, hasToken: !!token });
+  
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 15000);
-    if (typeof window !== 'undefined') console.debug('[stock.service] DELETE', url);
+    if (typeof window !== 'undefined') console.debug('[stock.service] DELETE headers:', headers);
     const res = await fetch(url, {
       method: 'DELETE',
       headers,
       signal: controller.signal,
     });
     clearTimeout(timer);
+    
+    console.log('[stock.service] DELETE response:', { status: res.status, ok: res.ok });
+    
     if (!res.ok && res.status !== 204) {
       const text = await res.text();
+      console.error('[stock.service] DELETE error response:', text);
       throw new Error(`No se pudo eliminar el producto (HTTP ${res.status}): ${text}`);
     }
+    console.log('[stock.service] DELETE exitoso');
     return;
   } catch (err: any) {
     const isAbort = err?.name === 'AbortError';
     const tip = `URL: ${url}. Verifica que el backend esté corriendo y que NEXT_PUBLIC_API_BASE_URL apunte al puerto correcto.`;
     const msg = isAbort ? `Tiempo de espera agotado. ${tip}` : `${err?.message || 'Fallo de red'}. ${tip}`;
+    console.error('[stock.service] DELETE exception:', err);
     throw new Error(msg);
   }
 }

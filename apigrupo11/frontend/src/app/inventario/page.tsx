@@ -83,23 +83,49 @@ export default function InventoryPage() {
     setDeleteError(null);
     const token = (session as any)?.accessToken;
     
-    // Eliminar del frontend inmediatamente (UI optimista)
-    const productIdToDelete = deleteTarget.id;
-    setProductos((prev) => prev.filter((p) => p.id !== productIdToDelete));
-    setDeleteTarget(null);
-    setDeleting(false);
+    console.log('[Inventario] Intento de eliminación:', { 
+      productId: deleteTarget.id, 
+      hasSession: !!session, 
+      hasToken: !!token,
+      tokenPreview: token ? `${token.substring(0, 20)}...` : 'NO TOKEN'
+    });
     
-    // Intentar eliminar en backend (no bloqueante)
+    const productIdToDelete = deleteTarget.id;
+    
+    // Construir URL base - usar puerto 3000 del backend
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+    const url = `${baseUrl}/api/productos/${productIdToDelete}`;
+    
+    console.log('[Inventario] DELETE a:', url);
+    
     try {
-      if (token) {
-        await deleteProduct(token, productIdToDelete);
-        console.log(`[Inventario] Producto ${productIdToDelete} eliminado del backend correctamente.`);
-      } else {
-        console.warn('[Inventario] No hay token disponible, producto eliminado solo del frontend.');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      
+      const res = await fetch(url, {
+        method: 'DELETE',
+        headers,
+      });
+      
+      console.log('[Inventario] Respuesta DELETE:', res.status, res.statusText);
+      
+      // 200, 204 y 404 se consideran éxito (el producto ya no existe)
+      if (!res.ok && res.status !== 204 && res.status !== 404) {
+        const errorText = await res.text();
+        throw new Error(`Error ${res.status}: ${errorText}`);
       }
+      
+      console.log('[Inventario] Producto eliminado del backend correctamente');
+      
+      // Solo eliminar del frontend si el backend respondió exitosamente
+      setProductos((prev) => prev.filter((p) => p.id !== productIdToDelete));
+      setDeleteTarget(null);
+      setDeleting(false);
     } catch (err: any) {
-      console.warn('[Inventario] Error al eliminar del backend (producto ya eliminado del UI):', err?.message);
-      // No mostramos error al usuario porque la eliminación en UI ya se hizo
+      console.error('[Inventario] Error al eliminar del backend:', err);
+      setDeleteError(`Error al eliminar el producto: ${err?.message || 'Error desconocido'}`);
+      setDeleting(false);
+      // NO cerrar el modal para que el usuario vea el error
     }
   };
 

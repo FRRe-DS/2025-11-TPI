@@ -201,7 +201,7 @@ export const DashboardPage: React.FC = () => {
         }}
       >
         <div style={{ ...chartCard, minHeight: "350px" }}>
-          <h3 style={chartTitle}>Evolución de Ventas</h3>
+          <h3 style={chartTitle}>Ventas de Ventas</h3>
           <div style={{ height: "280px" }}>
             <Line data={ventasMensuales} options={chartOptions} />
           </div>

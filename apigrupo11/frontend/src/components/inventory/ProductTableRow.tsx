@@ -120,10 +120,12 @@ const styles: { [key: string]: React.CSSProperties } = {
 
 interface ProductTableRowProps {
   product: IProducto;
+  onDelete?: (productId: number) => void;
 }
 
 export const ProductTableRow: React.FC<ProductTableRowProps> = ({
   product,
+  onDelete,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -188,19 +190,38 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
         <span>Reservado: {product.stockReservado}</span>
       </div>
 
-      <button
-        style={{
-          ...styles.menuButton,
-          backgroundColor: isHovered ? theme.colors.surface : 'transparent',
-          borderColor: isHovered ? theme.colors.primary : theme.colors.border,
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          alert(`Acciones para ${product.nombre}`);
-        }}
-      >
-        ⋮
-      </button>
+      <div style={{ display: 'flex', gap: '8px' }}>
+        <button
+          style={{
+            ...styles.menuButton,
+            backgroundColor: isHovered ? theme.colors.surface : 'transparent',
+            borderColor: isHovered ? theme.colors.primary : theme.colors.border,
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            alert(`Editar ${product.nombre}`);
+          }}
+          title="Editar"
+        >
+          ✏️
+        </button>
+        {onDelete && (
+          <button
+            style={{
+              ...styles.menuButton,
+              backgroundColor: isHovered ? theme.colors.surface : 'transparent',
+              borderColor: isHovered ? theme.colors.danger : theme.colors.border,
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(product.id);
+            }}
+            title="Eliminar"
+          >
+            🗑️
+          </button>
+        )}
+      </div>
     </div>
   );
 };

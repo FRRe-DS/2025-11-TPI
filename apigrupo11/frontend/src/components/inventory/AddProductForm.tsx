@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { theme } from '../../styles/theme';
 import { Button } from '../ui/Button';
 import type { ICategoria, IProducto, IProductoInput, IProductoUpdate } from '../../types/api.types';
-import { createProduct, updateProduct } from '../../services/stock.service';
 
 interface FormState {
   nombre: string;
@@ -173,7 +172,7 @@ interface AddProductFormProps {
   onAdd?: (product: IProducto) => void;
   onUpdate?: (product: IProducto) => void;
   token?: string;
-  categories: ICategoria[];
+  categories?: ICategoria[];
   mode?: 'create' | 'edit';
   product?: IProducto | null;
 }
@@ -321,11 +320,6 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
     setErrorMsg(null);
     setSuccessMsg(null);
 
-    if (!token) {
-      setErrorMsg('No hay token de autenticación. Inicia sesión nuevamente.');
-      return;
-    }
-
     if (!formData.categoriaId) {
       setErrorMsg('Selecciona una categoría para el producto.');
       return;
@@ -335,13 +329,82 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
       const payload = buildInputPayload();
       setSubmitting(true);
 
+      // Construir URL base
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 
+        (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+
+      console.log('[AddProductForm] Iniciando submit:', { mode, baseUrl, hasToken: !!token });
+      console.log('[AddProductForm] Payload:', JSON.stringify(payload, null, 2));
+
       if (mode === 'edit' && product) {
-        const updated = await updateProduct(token, product.id, payload.update!);
-        onUpdate?.(updated);
+        // Editar producto existente
+        const url = `${baseUrl}/api/productos/${product.id}`;
+        console.log('[AddProductForm] PATCH a:', url);
+
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const res = await fetch(url, {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify(payload.update),
+        });
+
+        console.log('[AddProductForm] Respuesta PATCH:', res.status, res.statusText);
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`Error ${res.status}: ${errorText}`);
+        }
+
+        const updatedData = await res.json();
+        console.log('[AddProductForm] Producto actualizado:', updatedData);
+        
+        // Obtener producto completo
+        const getRes = await fetch(`${baseUrl}/api/productos/${product.id}`, { headers });
+        const fullProduct = getRes.ok ? await getRes.json() : updatedData;
+        
+        onUpdate?.(fullProduct);
         setSuccessMsg('Producto actualizado correctamente.');
       } else {
-        const created = await createProduct(token, payload.create!);
-        onAdd?.(created);
+        // Crear nuevo producto
+        const url = `${baseUrl}/api/productos`;
+        console.log('[AddProductForm] POST a:', url);
+
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload.create),
+        });
+
+        console.log('[AddProductForm] Respuesta POST:', res.status, res.statusText);
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`Error ${res.status}: ${errorText}`);
+        }
+
+        const createResp = await res.json();
+        console.log('[AddProductForm] Respuesta crear:', createResp);
+
+        // Intentar obtener el producto completo
+        let createdProduct = createResp;
+        if (createResp?.id) {
+          try {
+            const getRes = await fetch(`${baseUrl}/api/productos/${createResp.id}`, { headers });
+            if (getRes.ok) {
+              createdProduct = await getRes.json();
+              console.log('[AddProductForm] Producto completo:', createdProduct);
+            }
+          } catch (err) {
+            console.warn('[AddProductForm] No se pudo obtener producto completo:', err);
+          }
+        }
+
+        onAdd?.(createdProduct);
         setSuccessMsg('Producto agregado correctamente.');
       }
 
@@ -350,6 +413,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
         onClose();
       }, 900);
     } catch (err: any) {
+      console.error('[AddProductForm] Error:', err);
       setSubmitting(false);
       const message = err?.message || 'Error al guardar el producto.';
       setErrorMsg(message);
