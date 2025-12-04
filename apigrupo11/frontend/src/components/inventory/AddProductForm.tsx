@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { theme } from '../../styles/theme';
 import { Button } from '../ui/Button';
 import type { ICategoria, IProducto, IProductoInput, IProductoUpdate } from '../../types/api.types';
+import { mapBackendProductoToFrontend } from '../../services/stock.service';
 
 interface FormState {
   nombre: string;
@@ -364,7 +365,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
         const getRes = await fetch(`${baseUrl}/api/productos/${product.id}`, { headers });
         const fullProduct = getRes.ok ? await getRes.json() : updatedData;
         
-        onUpdate?.(fullProduct);
+        onUpdate?.(mapBackendProductoToFrontend(fullProduct));
         setSuccessMsg('Producto actualizado correctamente.');
       } else {
         // Crear nuevo producto
@@ -404,7 +405,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({
           }
         }
 
-        onAdd?.(createdProduct);
+        onAdd?.(mapBackendProductoToFrontend(createdProduct));
         setSuccessMsg('Producto agregado correctamente.');
       }
 
