@@ -33,6 +33,7 @@ export interface Producto {
   descripcion?: string;
   precio: number; // float
   stockDisponible: number;
+  stockReservado?: number;
   pesoKg?: number; // float
   dimensiones?: Dimensiones;
   ubicacion?: UbicacionAlmacen;

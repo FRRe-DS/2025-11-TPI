@@ -23,12 +23,18 @@ import {
  * Converts Decimal to number for precio and pesoKg
  */
 function transformProducto(producto: any): Producto {
+  // Calculate reserved stock if relationship is loaded
+  const stockReservado = producto.reservaProductos
+    ? producto.reservaProductos.reduce((acc: number, item: any) => acc + item.cantidad, 0)
+    : 0;
+
   return {
     id: producto.id,
     nombre: producto.nombre,
     descripcion: producto.descripcion,
     precio: Number(producto.precio),
     stockDisponible: producto.stockDisponible,
+    stockReservado,
     pesoKg: producto.pesoKg ? Number(producto.pesoKg) : undefined,
     dimensiones: producto.dimensiones,
     ubicacion: producto.ubicacion,
@@ -104,7 +110,7 @@ export const productoDB = {
     const total = await prisma.producto.count({ where });
     const totalPages = Math.ceil(total / limit);
 
-    // Get products with categories
+    // Get products with categories and active reservations
     const productos = await prisma.producto.findMany({
       where,
       include: {
@@ -117,6 +123,16 @@ export const productoDB = {
                 descripcion: true
               }
             }
+          }
+        },
+        reservaProductos: {
+          where: {
+            reserva: {
+              estado: { in: ['pendiente', 'confirmado'] }
+            }
+          },
+          select: {
+            cantidad: true
           }
         }
       },
@@ -155,6 +171,16 @@ export const productoDB = {
                 descripcion: true
               }
             }
+          }
+        },
+        reservaProductos: {
+          where: {
+            reserva: {
+              estado: { in: ['pendiente', 'confirmado'] }
+            }
+          },
+          select: {
+            cantidad: true
           }
         }
       }

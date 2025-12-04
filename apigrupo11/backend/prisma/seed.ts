@@ -156,6 +156,16 @@ async function main() {
 
   console.log(`✅ Created example reservation with ID: ${reservaEjemplo.id}`);
 
+  // Actualizar stock de los productos reservados en el ejemplo
+  // Producto 1: Laptop (2 unidades)
+  await prisma.producto.update({ where: { id: 1 }, data: { stockDisponible: { decrement: 2 } } });
+  // Producto 5: Auriculares (3 unidades)
+  await prisma.producto.update({ where: { id: 5 }, data: { stockDisponible: { decrement: 3 } } });
+  // Producto 12: El Principito (5 unidades)
+  await prisma.producto.update({ where: { id: 12 }, data: { stockDisponible: { decrement: 5 } } });
+
+  console.log('✅ Updated stock for example reservation items');
+
   console.log('🌱 Seed completed successfully!');
 }
 
