@@ -118,13 +118,17 @@ async function main() {
   console.log(`✅ Created ${productosConCategorias.length} products with categories`);
 
   // Crear una reserva de ejemplo
+  const now = new Date();
+  const expires = new Date(now);
+  expires.setDate(expires.getDate() + 7); // 7 días después
+
   const reservaEjemplo = await prisma.reserva.create({
     data: {
-      idCompra: 'COMPRA-2024-001',
+      idCompra: 'COMPRA-2025-001',
       usuarioId: 1, // ID de usuario de ejemplo
       estado: 'confirmado',
-      expiresAt: new Date('2024-12-31T23:59:59Z'),
-      createdAt: new Date('2024-12-01T10:30:00Z'),
+      expiresAt: expires,
+      createdAt: now,
       productos: {
         create: [
           {
