@@ -22,6 +22,11 @@ export interface UbicacionAlmacen {
   country: string; // código ISO 3166-1 alfa-2, ej. "AR"
 }
 
+export interface ImagenProducto {
+  url: string;
+  esPrincipal?: boolean;
+}
+
 export interface Producto {
   id: number;
   nombre: string;
@@ -31,6 +36,7 @@ export interface Producto {
   pesoKg?: number; // float
   dimensiones?: Dimensiones;
   ubicacion?: UbicacionAlmacen;
+  imagenes?: ImagenProducto[];
   categorias?: Categoria[] | null;
 }
 
@@ -42,6 +48,7 @@ export interface ProductoInput {
   pesoKg?: number;
   dimensiones?: Dimensiones;
   ubicacion?: UbicacionAlmacen;
+  imagenes?: ImagenProducto[];
   categoriaIds?: number[]; // for input only
 }
 
@@ -53,6 +60,7 @@ export interface ProductoUpdate {
   pesoKg?: number;
   dimensiones?: Dimensiones;
   ubicacion?: UbicacionAlmacen;
+  imagenes?: ImagenProducto[];
   categoriaIds?: number[];
 }
 

@@ -4,11 +4,6 @@ import { ProductoUpdate } from "@/lib/types";
 import { badRequest, notFound, corsHeaders } from "@/app/api/_utils";
 import { requireAuth } from "@/lib/authMiddleware";
 
-// OPTIONS /api/productos/[productoId]
-export async function OPTIONS(req: NextRequest) {
-  return NextResponse.json({}, { headers: corsHeaders });
-}
-
 export async function GET(req: NextRequest, { params }: { params: Promise<{ productoId: string }> }) {
   console.log('[INFO] Solicitud recibida: GET /api/productos/[productoId]');
   const authResult = await requireAuth(req, { requiredScopes: ['productos:read'] });
@@ -28,7 +23,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ prod
     }
     console.log(`[INFO] Producto encontrado - ID: ${id}, Nombre: ${p.nombre}`);
     console.log('[INFO] Retornando datos del producto');
-    return NextResponse.json(p, { headers: corsHeaders });
+    return NextResponse.json(p);
   } catch (error) {
     console.error('[ERROR] Error al obtener producto:', error);
     return NextResponse.json(
@@ -63,7 +58,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ pr
     }
     console.log(`[INFO] Producto actualizado exitosamente - ID: ${id}`);
     console.log('[INFO] Retornando producto actualizado');
-    return NextResponse.json(updated, { headers: corsHeaders });
+    return NextResponse.json(updated);
   } catch (error) {
     console.error('[ERROR] Error al actualizar producto:', error);
     return NextResponse.json(
@@ -91,7 +86,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ p
       return notFound("Producto no encontrado");
     }
     console.log(`[INFO] Producto eliminado exitosamente - ID: ${id}`);
-    return new NextResponse(null, { status: 204, headers: corsHeaders });
+    return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error('[ERROR] Error al eliminar producto:', error);
     return NextResponse.json(

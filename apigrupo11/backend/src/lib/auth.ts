@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server';
 
 interface KeycloakConfig {
   issuer: string;
+  internalUrl: string;
   clientId: string;
   clientSecret: string;
   realm: string;
@@ -27,8 +28,10 @@ export class KeycloakAuth {
   private jwksCache: Map<string, any> = new Map();
 
   constructor() {
+    const issuer = process.env.KEYCLOAK_ISSUER || 'http://localhost:8080/realms/master';
     this.config = {
-      issuer: process.env.KEYCLOAK_ISSUER || 'http://localhost:8080/realms/master',
+      issuer: issuer,
+      internalUrl: process.env.KEYCLOAK_INTERNAL_URL || issuer,
       clientId: process.env.KEYCLOAK_CLIENT_ID || '',
       clientSecret: process.env.KEYCLOAK_CLIENT_SECRET || '',
       realm: process.env.KEYCLOAK_REALM || 'master'
@@ -39,8 +42,7 @@ export class KeycloakAuth {
    * Obtiene las claves públicas de Keycloak para validar JWTs
    */
   private async getJWKS(): Promise<any> {
-    const issuer = process.env.KEYCLOAK_ISSUER || this.config.issuer;
-    const jwksUrl = `${issuer}/protocol/openid-connect/certs`;
+    const jwksUrl = `${this.config.internalUrl}/protocol/openid-connect/certs`;
     
     if (this.jwksCache.has(jwksUrl)) {
       return this.jwksCache.get(jwksUrl);
@@ -64,7 +66,7 @@ export class KeycloakAuth {
    */
   async introspectToken(token: string): Promise<any | null> {
     try {
-      const introspectUrl = `${this.config.issuer}/protocol/openid-connect/token/introspect`;
+      const introspectUrl = `${this.config.internalUrl}/protocol/openid-connect/token/introspect`;
       
 
       const response = await fetch(introspectUrl, {
@@ -116,7 +118,7 @@ export class KeycloakAuth {
       const publicKey = await importJWK(key);
 
       // IMPORTANTE: Leer el issuer en runtime
-      const issuer = process.env.KEYCLOAK_ISSUER || this.config.issuer;
+      const issuer = this.config.issuer;
       console.log('[INFO] Validating token against issuer:', issuer);
 
       // Verificar el JWT - solo validamos el issuer (realm)
@@ -159,7 +161,7 @@ export class KeycloakAuth {
    */
   async getClientToken(): Promise<string | null> {
     try {
-      const tokenUrl = `${this.config.issuer}/protocol/openid-connect/token`;
+      const tokenUrl = `${this.config.internalUrl}/protocol/openid-connect/token`;
       
       const response = await fetch(tokenUrl, {
         method: 'POST',

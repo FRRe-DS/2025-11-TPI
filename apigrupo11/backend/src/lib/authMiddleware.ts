@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { KeycloakAuth } from './auth';
+import { corsHeaders } from '@/app/api/_utils';
 
 export interface AuthenticatedRequest extends NextRequest {
   user?: {

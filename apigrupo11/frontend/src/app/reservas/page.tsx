@@ -59,20 +59,7 @@ export default function ReservasPage() {
           </div>
         </div>
 
-        {/* Mensaje informativo cuando backend no está disponible */}
-        {reservas.length > 0 && reservas[0]?.id === 1 && reservas[0]?.productoNombre === 'Laptop HP' && (
-          <div style={{ 
-            backgroundColor: '#3498db20', 
-            border: '1px solid #3498db', 
-            borderRadius: theme.borderRadius.md, 
-            padding: '12px 16px',
-            marginTop: theme.spacing.md,
-            color: '#3498db',
-            fontSize: '14px',
-          }}>
-            ℹ️ Mostrando datos de ejemplo (backend no disponible). Para ver datos reales, inicia el backend en puerto 3000.
-          </div>
-        )}
+
 
         <div style={{
           marginTop: theme.spacing.md,
@@ -100,34 +87,89 @@ export default function ReservasPage() {
               <table style={{ width: '100%', borderCollapse: 'collapse', color: theme.colors.textPrimary }}>
                 <thead style={{ backgroundColor: theme.colors.darkBgSecondary }}>
                   <tr>
-                    <th style={{ padding: '12px', textAlign: 'left' }}>ID</th>
-                    <th style={{ padding: '12px', textAlign: 'left' }}>Producto</th>
-                    <th style={{ padding: '12px', textAlign: 'left' }}>Cantidad</th>
+                    <th style={{ padding: '12px', textAlign: 'left' }}>ID Reserva</th>
+                    <th style={{ padding: '12px', textAlign: 'left' }}>ID Compra</th>
+                    <th style={{ padding: '12px', textAlign: 'left' }}>Productos</th>
                     <th style={{ padding: '12px', textAlign: 'left' }}>Usuario</th>
-                    <th style={{ padding: '12px', textAlign: 'left' }}>Fecha</th>
+                    <th style={{ padding: '12px', textAlign: 'left' }}>Fecha Creación</th>
+                    <th style={{ padding: '12px', textAlign: 'left' }}>Expira</th>
                     <th style={{ padding: '12px', textAlign: 'left' }}>Estado</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {reservas.map((r, idx) => (
-                    <tr key={r.id ?? `res-${idx}`} style={{ borderBottom: `1px solid ${theme.colors.border}` }}>
-                      <td style={{ padding: '12px', fontWeight: 600 }}>{r.id ?? `#${idx+1}`}</td>
-                      <td style={{ padding: '12px' }}>{r.productoNombre}</td>
-                      <td style={{ padding: '12px' }}>{r.cantidad}</td>
-                      <td style={{ padding: '12px', color: theme.colors.textSecondary }}>{r.usuarioId}</td>
+                  {reservas.map((r: any, idx) => (
+                    <tr key={r.idReserva ?? `res-${idx}`} style={{ borderBottom: `1px solid ${theme.colors.border}` }}>
+                      <td style={{ padding: '12px', fontWeight: 600 }}>#{r.idReserva ?? idx + 1}</td>
+                      <td style={{ padding: '12px', color: theme.colors.textSecondary, fontFamily: 'monospace' }}>
+                        {r.idCompra || '-'}
+                      </td>
+                      <td style={{ padding: '12px' }}>
+                        {r.productos && r.productos.length > 0 ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            {r.productos.map((prod: any) => (
+                              <div key={prod.id} style={{ 
+                                fontSize: '13px',
+                                padding: '4px 8px',
+                                backgroundColor: theme.colors.darkBgSecondary,
+                                borderRadius: theme.borderRadius.sm,
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center'
+                              }}>
+                                <span style={{ fontWeight: 500 }}>{prod.nombreProducto}</span>
+                                <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: theme.colors.textSecondary }}>
+                                  <span>Cant: {prod.cantidad}</span>
+                                  <span>${prod.precioUnitario.toFixed(2)}</span>
+                                </div>
+                              </div>
+                            ))}
+                            <div style={{ 
+                              fontSize: '13px', 
+                              fontWeight: 700, 
+                              marginTop: '4px',
+                              color: theme.colors.primary 
+                            }}>
+                              Total: ${r.productos.reduce((sum: number, p: any) => sum + (p.cantidad * p.precioUnitario), 0).toFixed(2)}
+                            </div>
+                          </div>
+                        ) : (
+                          <span style={{ color: theme.colors.textSecondary }}>Sin productos</span>
+                        )}
+                      </td>
                       <td style={{ padding: '12px', color: theme.colors.textSecondary }}>
-                        {new Date(r.fechaReserva).toLocaleString()}
+                        Usuario #{r.usuarioId}
+                      </td>
+                      <td style={{ padding: '12px', color: theme.colors.textSecondary, fontSize: '13px' }}>
+                        {new Date(r.fechaCreacion).toLocaleString('es-AR', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </td>
+                      <td style={{ padding: '12px', color: theme.colors.textSecondary, fontSize: '13px' }}>
+                        {r.expiresAt ? new Date(r.expiresAt).toLocaleString('es-AR', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        }) : '-'}
                       </td>
                       <td style={{ padding: '12px' }}>
                         <span style={{
                           padding: '6px 10px',
                           borderRadius: theme.borderRadius.md,
                           backgroundColor:
-                            r.estado === 'activa' ? '#2980b9' :
-                            r.estado === 'completada' ? '#27ae60' : '#95a5a6',
+                            r.estado === 'pendiente' ? '#f39c12' :
+                            r.estado === 'confirmada' ? '#27ae60' :
+                            r.estado === 'cancelada' ? '#e74c3c' :
+                            r.estado === 'expirada' ? '#95a5a6' : '#3498db',
                           color: theme.colors.textOnPrimary,
                           fontWeight: 700,
-                          fontSize: '13px'
+                          fontSize: '13px',
+                          textTransform: 'capitalize'
                         }}>
                           {r.estado}
                         </span>
