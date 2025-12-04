@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+model Categoria {
+  id          Int      @id @default(autoincrement())
+  nombre      String   @unique @db.VarChar(100)
+  descripcion String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  productosCategorias ProductoCategoria[]
+
+  @@map("categorias")
+}
+
+model Producto {
+  id               Int      @id @default(autoincrement())
+  nombre           String   @db.VarChar(255)
+  descripcion      String?  @db.Text
+  precio           Decimal  @db.Decimal(10, 2)
+  stockDisponible  Int      @default(0) @map("stock_disponible")
+  pesoKg           Decimal? @map("peso_kg") @db.Decimal(8, 3)
+  dimensiones      Json?    @db.JsonB // {largoCm, anchoCm, altoCm}
+  ubicacion        Json?    @db.JsonB // {street, city, state, postal_code, country}
+  imagenes         Json?    @db.JsonB // array of {url, esPrincipal}
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  categorias        ProductoCategoria[]
+  reservaProductos  ReservaProducto[]
+
+  @@index([nombre], map: "idx_productos_nombre")
+  @@index([precio], map: "idx_productos_precio")
+  @@index([stockDisponible], map: "idx_productos_stock")
+  @@map("productos")
+}
+
+model ProductoCategoria {
+  id          Int      @id @default(autoincrement())
+  productoId  Int      @map("producto_id")
+  categoriaId Int      @map("categoria_id")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  producto  Producto  @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  categoria Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
+
+  @@unique([productoId, categoriaId])
+  @@index([productoId], map: "idx_producto_categorias_producto")
+  @@index([categoriaId], map: "idx_producto_categorias_categoria")
+  @@map("producto_categorias")
+}
+
+model Reserva {
+  id                  Int      @id @default(autoincrement())
+  idCompra            String   @unique @map("id_compra") @db.VarChar(255)
+  usuarioId           Int      @map("usuario_id")
+  estado              String   @db.VarChar(20) // 'pendiente', 'confirmado', 'cancelado'
+  expiresAt           DateTime @map("expires_at") @db.Timestamptz(6)
+  motivoCancelacion   String?  @map("motivo_cancelacion") @db.Text
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  productos ReservaProducto[]
+
+  @@index([usuarioId], map: "idx_reservas_usuario")
+  @@index([estado], map: "idx_reservas_estado")
+  @@index([expiresAt], map: "idx_reservas_expires")
+  @@map("reservas")
+}
+
+model ReservaProducto {
+  id              Int      @id @default(autoincrement())
+  reservaId       Int      @map("reserva_id")
+  productoId      Int      @map("producto_id")
+  productoNombre  String   @map("producto_nombre") @db.VarChar(255)
+  cantidad        Int
+  precioUnitario  Decimal  @map("precio_unitario") @db.Decimal(10, 2)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  reserva  Reserva  @relation(fields: [reservaId], references: [id], onDelete: Cascade)
+  producto Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+
+  @@unique([reservaId, productoId])
+  @@index([reservaId], map: "idx_reserva_productos_reserva")
+  @@index([productoId], map: "idx_reserva_productos_producto")
+  @@map("reserva_productos")
+}
