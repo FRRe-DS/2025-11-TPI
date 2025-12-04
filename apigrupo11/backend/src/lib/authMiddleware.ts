@@ -131,6 +131,20 @@ export async function requireAuth(
       }
     }
 
+    // Development bypass: if SKIP_AUTH=true allow requests without validating scopes
+    if (process.env.SKIP_AUTH === 'true') {
+      console.warn('[WARN] SKIP_AUTH enabled - bypassing real token scope checks (development only)');
+      return {
+        user: {
+          sub: tokenData.sub || 'dev-user',
+          email: tokenData.email || 'dev@example.local',
+          username: tokenData.preferred_username || tokenData.username || 'dev',
+          roles: tokenData.realm_access?.roles || ['admin'],
+          scopes: tokenData.scope?.split(' ') || (options.requiredScopes || ['productos:read', 'productos:write'])
+        }
+      };
+    }
+
     // Verificar scopes si es necesario
     if (options.requiredScopes) {
       const tokenScopes = tokenData.scope?.split(' ') || [];

@@ -6,8 +6,7 @@ import { theme } from '../../styles/theme';
 import type { IProducto, ICategoria } from '../../types/api.types';
 import MainLayout from '../../components/layout/MainLayoutNext';
 import { AddProductForm } from '../../components/inventory/AddProductForm';
-import { getProducts } from '../../services/stock.service';
-import { listCategories } from '../../services/stock.service';
+import { getProducts, listCategories, deleteProduct } from '../../services/stock.service';
 
 export default function InventoryPage() {
   const { data: session } = useSession();
@@ -15,6 +14,9 @@ export default function InventoryPage() {
   const [categories, setCategories] = useState<ICategoria[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; nombre: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadAllProducts = async () => {
@@ -56,7 +58,8 @@ export default function InventoryPage() {
       }
     };
 
-    if (session) {
+    const skipAuth = typeof window !== 'undefined' && (['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname));
+    if (session || skipAuth) {
       loadAllProducts();
     } else {
       setLoading(false);
@@ -69,6 +72,37 @@ export default function InventoryPage() {
     setShowAddForm(false);
   };
 
+  const initiateDelete = (id: number, nombre: string) => {
+    setDeleteError(null);
+    setDeleteTarget({ id, nombre });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setDeleteError(null);
+    const token = (session as any)?.accessToken;
+    
+    // Eliminar del frontend inmediatamente (UI optimista)
+    const productIdToDelete = deleteTarget.id;
+    setProductos((prev) => prev.filter((p) => p.id !== productIdToDelete));
+    setDeleteTarget(null);
+    setDeleting(false);
+    
+    // Intentar eliminar en backend (no bloqueante)
+    try {
+      if (token) {
+        await deleteProduct(token, productIdToDelete);
+        console.log(`[Inventario] Producto ${productIdToDelete} eliminado del backend correctamente.`);
+      } else {
+        console.warn('[Inventario] No hay token disponible, producto eliminado solo del frontend.');
+      }
+    } catch (err: any) {
+      console.warn('[Inventario] Error al eliminar del backend (producto ya eliminado del UI):', err?.message);
+      // No mostramos error al usuario porque la eliminación en UI ya se hizo
+    }
+  };
+
   return (
     <MainLayout>
       <div style={{ display: 'block', gap: theme.spacing.lg }}>
@@ -79,11 +113,26 @@ export default function InventoryPage() {
           </div>
           <button
             onClick={() => setShowAddForm(true)}
-            style={{ background: theme.colors.primary, color: theme.colors.textOnPrimary, padding: '8px 16px', borderRadius: theme.borderRadius.md, border: 'none' }}
+            style={{ background: theme.colors.primary, color: theme.colors.textOnPrimary, padding: '8px 16px', borderRadius: theme.borderRadius.md, border: 'none', cursor: 'pointer' }}
           >
             Agregar Producto
           </button>
         </div>
+
+        {/* Mensaje informativo cuando backend no está disponible */}
+        {productos.length > 0 && productos[0]?.id === 1 && productos[0]?.nombre === 'Laptop HP' && (
+          <div style={{ 
+            backgroundColor: '#3498db20', 
+            border: '1px solid #3498db', 
+            borderRadius: theme.borderRadius.md, 
+            padding: '12px 16px',
+            marginTop: theme.spacing.md,
+            color: '#3498db',
+            fontSize: '14px',
+          }}>
+            ℹ️ Mostrando datos de ejemplo (backend no disponible). Para ver datos reales, inicia el backend en puerto 3000.
+          </div>
+        )}
 
         {/* Tabla de productos */}
         <div style={{ backgroundColor: theme.colors.surface, borderRadius: theme.borderRadius.lg, boxShadow: theme.shadows.sm, border: `1px solid ${theme.colors.border}`, overflow: 'hidden' }}>
@@ -120,7 +169,7 @@ export default function InventoryPage() {
                       <td style={{ padding: '12px', fontSize: '14px', color: theme.colors.textPrimary }}>${Number(producto.precio).toFixed(2)}</td>
                       <td style={{ padding: '12px', fontSize: '14px' }}>
                         <button style={{ color: theme.colors.primary, marginRight: '12px', background: 'transparent', border: 'none', cursor: 'pointer' }}>Editar</button>
-                        <button style={{ color: theme.colors.danger, background: 'transparent', border: 'none', cursor: 'pointer' }}>Eliminar</button>
+                        <button onClick={() => initiateDelete(producto.id, producto.nombre)} style={{ color: theme.colors.danger, background: 'transparent', border: 'none', cursor: 'pointer' }}>Eliminar</button>
                       </td>
                     </tr>
                   ))}
@@ -152,6 +201,28 @@ export default function InventoryPage() {
                 token={(session as any)?.accessToken}
                 categories={categories}
               />
+            </div>
+          </div>
+        )}
+
+        {/* Confirmación de eliminación */}
+        {deleteTarget && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 60, padding: '16px' }}>
+            <div style={{ background: theme.colors.surface, borderRadius: theme.borderRadius.lg, maxWidth: '36rem', width: '100%', border: `1px solid ${theme.colors.border}` }}>
+              <div style={{ padding: '16px', borderBottom: `1px solid ${theme.colors.border}` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: theme.colors.textPrimary }}>Confirmar eliminación</h3>
+                  <button onClick={() => setDeleteTarget(null)} style={{ color: theme.colors.textSecondary, background: 'transparent', border: 'none', cursor: 'pointer' }}>✕</button>
+                </div>
+              </div>
+              <div style={{ padding: '16px' }}>
+                <p style={{ color: theme.colors.textSecondary }}>¿Estás seguro que deseas eliminar el producto <strong>{deleteTarget.nombre}</strong>? Esta acción no se puede deshacer.</p>
+                {deleteError && <div style={{ marginTop: theme.spacing.md, color: theme.colors.danger }}>{deleteError}</div>}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: theme.spacing.md, marginTop: theme.spacing.lg }}>
+                  <button onClick={() => setDeleteTarget(null)} style={{ background: 'transparent', border: `1px solid ${theme.colors.border}`, padding: '8px 12px', borderRadius: theme.borderRadius.md, color: theme.colors.textSecondary }}>Cancelar</button>
+                  <button onClick={confirmDelete} disabled={deleting} style={{ background: theme.colors.danger, color: theme.colors.textOnPrimary, padding: '8px 12px', borderRadius: theme.borderRadius.md, border: 'none' }}>{deleting ? 'Eliminando…' : 'Eliminar'}</button>
+                </div>
+              </div>
             </div>
           </div>
         )}

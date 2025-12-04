@@ -39,10 +39,14 @@ export default function ReservasPage() {
       } finally {
         setLoading(false);
       }
-  };
+    };
 
-
-    fetchReservas();
+    const skipAuth = typeof window !== 'undefined' && (['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname));
+    if (session || skipAuth) {
+      fetchReservas();
+    } else {
+      setLoading(false);
+    }
   }, [session]);
 
   return (
@@ -54,6 +58,21 @@ export default function ReservasPage() {
             <p style={{ color: theme.colors.textSecondary }}>Listado de reservas del sistema</p>
           </div>
         </div>
+
+        {/* Mensaje informativo cuando backend no está disponible */}
+        {reservas.length > 0 && reservas[0]?.id === 1 && reservas[0]?.productoNombre === 'Laptop HP' && (
+          <div style={{ 
+            backgroundColor: '#3498db20', 
+            border: '1px solid #3498db', 
+            borderRadius: theme.borderRadius.md, 
+            padding: '12px 16px',
+            marginTop: theme.spacing.md,
+            color: '#3498db',
+            fontSize: '14px',
+          }}>
+            ℹ️ Mostrando datos de ejemplo (backend no disponible). Para ver datos reales, inicia el backend en puerto 3000.
+          </div>
+        )}
 
         <div style={{
           marginTop: theme.spacing.md,

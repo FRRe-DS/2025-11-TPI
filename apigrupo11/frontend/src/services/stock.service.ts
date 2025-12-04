@@ -1,7 +1,9 @@
 import type { IProducto, IApiListResponse, IProductoInput, IProductoUpdate, ICategoria } from '../types/api.types';
 
 function resolveBaseUrl() {
+  // Prefer explicit env var `NEXT_PUBLIC_API_BASE_URL`, then `NEXT_PUBLIC_API_URL` for backwards compatibility.
   if (process.env.NEXT_PUBLIC_API_BASE_URL) return process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
   if (typeof window !== 'undefined') return window.location.origin;
   return 'http://localhost:3000';
 }
@@ -40,19 +42,69 @@ export async function getProducts(token?: string, page = 1, limit = 20, q?: stri
     };
   } catch (error) {
     // Fallback a datos mock para desarrollo offline
-    console.warn('Error fetching products from API, fallback vacío.', error);
+    console.warn('Error fetching products from API, usando datos de ejemplo.', error);
     if (typeof window !== 'undefined') {
       console.warn('[stock.service] URL usada:', url);
-      console.warn('Verifica backend y NEXT_PUBLIC_API_BASE_URL.');
+      console.warn('⚠️ Backend no disponible. Mostrando datos de ejemplo. Para ver datos reales, inicia el backend en puerto 3000.');
     }
-    const mock: IProducto[] = [];
+    // Datos mock de ejemplo para desarrollo sin backend
+    const mock: IProducto[] = [
+      {
+        id: 1,
+        nombre: 'Laptop HP',
+        descripcion: 'Laptop HP 15.6" Intel Core i5',
+        precio: 850.00,
+        stockDisponible: 10,
+        stockReservado: 2,
+        stockTotal: 12,
+        vendedorId: 1,
+        categoriaId: 1,
+        categoria: 'Electrónica',
+        categorias: [{ id: 1, nombre: 'Electrónica', descripcion: null }],
+        pesoKg: 2.5,
+        fechaCreacion: new Date().toISOString(),
+        fechaActualizacion: new Date().toISOString(),
+      },
+      {
+        id: 2,
+        nombre: 'Mouse Logitech',
+        descripcion: 'Mouse inalámbrico Logitech MX Master',
+        precio: 99.99,
+        stockDisponible: 25,
+        stockReservado: 0,
+        stockTotal: 25,
+        vendedorId: 1,
+        categoriaId: 1,
+        categoria: 'Electrónica',
+        categorias: [{ id: 1, nombre: 'Electrónica', descripcion: null }],
+        pesoKg: 0.2,
+        fechaCreacion: new Date().toISOString(),
+        fechaActualizacion: new Date().toISOString(),
+      },
+      {
+        id: 3,
+        nombre: 'Teclado Mecánico',
+        descripcion: 'Teclado mecánico RGB retroiluminado',
+        precio: 129.99,
+        stockDisponible: 15,
+        stockReservado: 3,
+        stockTotal: 18,
+        vendedorId: 1,
+        categoriaId: 1,
+        categoria: 'Electrónica',
+        categorias: [{ id: 1, nombre: 'Electrónica', descripcion: null }],
+        pesoKg: 1.0,
+        fechaCreacion: new Date().toISOString(),
+        fechaActualizacion: new Date().toISOString(),
+      },
+    ];
     return {
       data: mock,
       pagination: {
         currentPage: page,
         pageSize: limit,
-        totalItems: 0,
-        totalPages: 0,
+        totalItems: mock.length,
+        totalPages: 1,
         hasNextPage: false,
         hasPreviousPage: false,
       },
@@ -208,18 +260,26 @@ export async function deleteProduct(token: string, id: number): Promise<void> {
   const url = `${baseUrl}/api/productos/${id}`;
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 15000);
-  const res = await fetch(url, {
-    method: 'DELETE',
-    headers,
-    signal: controller.signal,
-  });
-  clearTimeout(timer);
-  if (!res.ok && res.status !== 204) {
-    const text = await res.text();
-    throw new Error(`No se pudo eliminar el producto (HTTP ${res.status}): ${text}`);
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+    if (typeof window !== 'undefined') console.debug('[stock.service] DELETE', url);
+    const res = await fetch(url, {
+      method: 'DELETE',
+      headers,
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok && res.status !== 204) {
+      const text = await res.text();
+      throw new Error(`No se pudo eliminar el producto (HTTP ${res.status}): ${text}`);
+    }
+    return;
+  } catch (err: any) {
+    const isAbort = err?.name === 'AbortError';
+    const tip = `URL: ${url}. Verifica que el backend esté corriendo y que NEXT_PUBLIC_API_BASE_URL apunte al puerto correcto.`;
+    const msg = isAbort ? `Tiempo de espera agotado. ${tip}` : `${err?.message || 'Fallo de red'}. ${tip}`;
+    throw new Error(msg);
   }
 }
 
