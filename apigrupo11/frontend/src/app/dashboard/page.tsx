@@ -184,8 +184,7 @@ export default function DashboardPage() {
           stats: {
             totalProductos: allProducts.length,
             stockBajo,
-            ventasMes: 0, // No hay datos de ventas mensuales
-            almacenes: 1,
+            ventasMes: 0,
           },
         });
       } catch (err) {
@@ -293,8 +292,9 @@ export default function DashboardPage() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(1, 1fr)',
-                gap: theme.spacing.md,
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: theme.spacing.lg,
+                marginBottom: theme.spacing.lg,
               }}
             >
               <StatCard
@@ -305,8 +305,8 @@ export default function DashboardPage() {
               />
               <StatCard
                 icon={FaChartLine}
-                title="Almacenes"
-                value={stats.almacenes}
+                title="Total Existencias"
+                value={totalExistencias}
                 color={theme.colors.primary}
               />
             </div>
@@ -320,30 +320,48 @@ export default function DashboardPage() {
                   borderRadius: theme.borderRadius.lg,
                   boxShadow: theme.shadows.sm,
                   border: `1px solid ${theme.colors.border}`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexDirection: 'column',
                 }}
               >
                 <h3
                   style={{
                     fontSize: '1.125rem',
                     fontWeight: 600,
-                    marginBottom: theme.spacing.sm,
+                    marginBottom: theme.spacing.md,
                     color: theme.colors.textPrimary,
                   }}
                 >
-                  Cantidad total de existencias
+                  Productos con más existencias
                 </h3>
-                <div
-                  style={{
-                    fontSize: '3rem',
-                    fontWeight: 700,
-                    color: theme.colors.textPrimary,
-                  }}
-                >
-                  {totalExistencias}
+                <div style={{ height: '300px' }}>
+                  {productosPopulares.labels.length > 0 ? (
+                    <Bar
+                      data={productosPopulares}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.1)' },
+                          },
+                          x: { grid: { display: false } },
+                        },
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        color: theme.colors.textSecondary,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: '100%',
+                      }}
+                    >
+                      Sin datos de productos
+                    </div>
+                  )}
                 </div>
               </div>
               <div
@@ -420,7 +438,7 @@ export default function DashboardPage() {
                 </div>
                 <div
                   style={{
-                    height: '250px',
+                    height: '300px',
                     display: 'flex',
                     justifyContent: 'center',
                   }}
@@ -440,58 +458,6 @@ export default function DashboardPage() {
                     </div>
                   )}
                 </div>
-              </div>
-            </div>
-
-            <div
-              style={{
-                backgroundColor: theme.colors.surface,
-                padding: theme.spacing.lg,
-                borderRadius: theme.borderRadius.lg,
-                boxShadow: theme.shadows.sm,
-                border: `1px solid ${theme.colors.border}`,
-              }}
-            >
-              <h3
-                style={{
-                  fontSize: '1.125rem',
-                  fontWeight: 600,
-                  marginBottom: theme.spacing.sm,
-                  color: theme.colors.textPrimary,
-                }}
-              >
-                Productos con más existencias
-              </h3>
-              <div style={{ height: '300px' }}>
-                {productosPopulares.labels.length > 0 ? (
-                  <Bar
-                    data={productosPopulares}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: { legend: { display: false } },
-                      scales: {
-                        y: {
-                          beginAtZero: true,
-                          grid: { color: 'rgba(0,0,0,0.1)' },
-                        },
-                        x: { grid: { display: false } },
-                      },
-                    }}
-                  />
-                ) : (
-                  <div
-                    style={{
-                      color: theme.colors.textSecondary,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      height: '100%',
-                    }}
-                  >
-                    Sin datos de productos
-                  </div>
-                )}
               </div>
             </div>
           </>
