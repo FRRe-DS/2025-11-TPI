@@ -41,8 +41,12 @@ export default function DashboardPage() {
   const { data: session } = useSession();
   const [productos, setProductos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [categoriaViewMode, setCategoriaViewMode] = useState<
+    'existencias' | 'dinero'
+  >('existencias');
   const [chartData, setChartData] = useState<any>({
     categoriasStock: null,
+    categoriasDinero: null,
     productosPopulares: null,
     totalExistencias: 0,
     stats: { totalProductos: 0, stockBajo: 0, ventasMes: 0, almacenes: 1 },
@@ -86,31 +90,68 @@ export default function DashboardPage() {
 
         // Agrupar por categoría
         const categoriaMap = new Map<string, number>();
+        const categoriaDineroMap = new Map<string, number>();
+
+        const colores = [
+          '#7c3aed',
+          '#10b981',
+          '#a46b08ff',
+          '#3b82f6',
+          '#ef4444',
+          '#06b6d4',
+          '#ec4899',
+          '#14b8a6',
+          '#f97316',
+          '#a855f7',
+          '#d946ef',
+          '#84cc16',
+          '#0ea5e9',
+          '#6366f1',
+          '#f43f5e',
+          '#a21caf',
+          '#eab308',
+          '#9333ea',
+          '#0891b2',
+          '#059669',
+          '#f472b6',
+          '#ca8a04',
+        ];
+
         allProducts.forEach((p: any) => {
           const cat = p.categoria || 'Sin categoría';
-          categoriaMap.set(
+          const stock = p.stockDisponible || 0;
+          const precio = p.precio || 0;
+
+          categoriaMap.set(cat, (categoriaMap.get(cat) || 0) + stock);
+          categoriaDineroMap.set(
             cat,
-            (categoriaMap.get(cat) || 0) + (p.stockDisponible || 0)
+            (categoriaDineroMap.get(cat) || 0) + stock * precio
           );
         });
 
         const categoriasLabels = Array.from(categoriaMap.keys());
-        const categoriasData = Array.from(categoriaMap.values());
+        const categoriasDataExistencias = Array.from(categoriaMap.values());
+        const categoriasDataDinero = Array.from(categoriaDineroMap.values());
 
         const categoriasStock = {
           labels: categoriasLabels,
           datasets: [
             {
-              data: categoriasData,
-              backgroundColor: [
-                '#7c3aed',
-                '#10b981',
-                '#f59e0b',
-                '#3b82f6',
-                '#ef4444',
-                '#06b6d4',
-                '#ec4899',
-              ],
+              data: categoriasDataExistencias,
+              backgroundColor: colores.slice(0, categoriasLabels.length),
+              borderWidth: 0,
+            },
+          ],
+        };
+
+        const categoriasDinero = {
+          labels: categoriasLabels,
+          datasets: [
+            {
+              data: categoriasDataDinero.map((v: number) =>
+                parseFloat(v.toFixed(2))
+              ),
+              backgroundColor: colores.slice(0, categoriasLabels.length),
               borderWidth: 0,
             },
           ],
@@ -137,6 +178,7 @@ export default function DashboardPage() {
 
         setChartData({
           categoriasStock,
+          categoriasDinero,
           productosPopulares,
           totalExistencias,
           stats: {
@@ -172,10 +214,16 @@ export default function DashboardPage() {
       },
     ],
   };
-  const categoriasStock = chartData.categoriasStock || {
-    labels: [],
-    datasets: [{ data: [], backgroundColor: [], borderWidth: 0 }],
-  };
+  const categoriasStock =
+    categoriaViewMode === 'existencias'
+      ? chartData.categoriasStock || {
+          labels: [],
+          datasets: [{ data: [], backgroundColor: [], borderWidth: 0 }],
+        }
+      : chartData.categoriasDinero || {
+          labels: [],
+          datasets: [{ data: [], backgroundColor: [], borderWidth: 0 }],
+        };
   const productosPopulares = chartData.productosPopulares || {
     labels: [],
     datasets: [{ label: 'Existencias', data: [], backgroundColor: '#7c3aed' }],
@@ -307,16 +355,69 @@ export default function DashboardPage() {
                   border: `1px solid ${theme.colors.border}`,
                 }}
               >
-                <h3
+                <div
                   style={{
-                    fontSize: '1.125rem',
-                    fontWeight: 600,
-                    marginBottom: theme.spacing.sm,
-                    color: theme.colors.textPrimary,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: theme.spacing.md,
                   }}
                 >
-                  Distribución por Categorías
-                </h3>
+                  <h3
+                    style={{
+                      fontSize: '1.125rem',
+                      fontWeight: 600,
+                      color: theme.colors.textPrimary,
+                      margin: 0,
+                    }}
+                  >
+                    Distribución por Categorías
+                  </h3>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      onClick={() => setCategoriaViewMode('existencias')}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: theme.borderRadius.sm,
+                        border: 'none',
+                        background:
+                          categoriaViewMode === 'existencias'
+                            ? theme.colors.primary
+                            : theme.colors.border,
+                        color:
+                          categoriaViewMode === 'existencias'
+                            ? theme.colors.textOnPrimary
+                            : theme.colors.textSecondary,
+                        cursor: 'pointer',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                      }}
+                    >
+                      Existencias
+                    </button>
+                    <button
+                      onClick={() => setCategoriaViewMode('dinero')}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: theme.borderRadius.sm,
+                        border: 'none',
+                        background:
+                          categoriaViewMode === 'dinero'
+                            ? theme.colors.primary
+                            : theme.colors.border,
+                        color:
+                          categoriaViewMode === 'dinero'
+                            ? theme.colors.textOnPrimary
+                            : theme.colors.textSecondary,
+                        cursor: 'pointer',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                      }}
+                    >
+                      Dinero Acumulado
+                    </button>
+                  </div>
+                </div>
                 <div
                   style={{
                     height: '250px',
