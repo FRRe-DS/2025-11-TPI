@@ -5,7 +5,7 @@ import type React from 'react';
 import { signOut } from 'next-auth/react'; // <-- 2. Importamos signOut
 import { theme } from '../../styles/theme';
 import { SidebarLinkNext } from './SidebarLinkNext';
-import { FiHome, FiBox, FiSearch, FiLogOut } from 'react-icons/fi';
+import { FiHome, FiBox, FiSearch, FiLogOut, FiClipboard } from 'react-icons/fi';
 
 export const SidebarNext: React.FC = () => {
   // const router = useRouter(); // <-- 1. Ya no lo necesitamos
@@ -65,7 +65,7 @@ export const SidebarNext: React.FC = () => {
       <nav style={styles.nav}>
         <SidebarLinkNext to="/dashboard" icon={<FiHome />}>Dashboard</SidebarLinkNext>
         <SidebarLinkNext to="/inventario" icon={<FiBox />}>Inventario</SidebarLinkNext>
-        <SidebarLinkNext to="/auditoria" icon={<FiSearch />}>Auditoría</SidebarLinkNext>
+        <SidebarLinkNext to="/reservas" icon={<FiClipboard />}>Reservas</SidebarLinkNext>
       </nav>
 
       <div style={styles.logoutSection}>

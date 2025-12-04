@@ -81,14 +81,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         (e.currentTarget.style.borderColor = theme.colors.border)
       }
     >
-      <img
-        src={
-          product.imagenes[0]?.url ||
-          'https://placehold.co/50x50/F9FAFB/E5E7EB?text=Img'
-        }
-        alt={product.nombre}
-        style={styles.image}
-      />
+      <div
+        style={{
+          ...styles.image,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: theme.colors.textSecondary,
+          fontSize: '12px',
+          border: `1px solid ${theme.colors.border}`,
+        }}
+      >
+        {product.nombre.slice(0, 2).toUpperCase()}
+      </div>
       <div style={styles.info}>
         <h4 style={styles.title}>{product.nombre}</h4>
         <p style={styles.details}>

@@ -513,3 +513,4 @@ FROM productos p
 LEFT JOIN producto_categorias pc ON p.id = pc.producto_id
 LEFT JOIN categorias c ON pc.categoria_id = c.id
 GROUP BY p.id, p.nombre, p.descripcion, p.precio, p.stock_disponible, p.peso_kg, p.dimensiones, p.ubicacion, p.imagenes, p.created_at, p.updated_at;
+

@@ -79,14 +79,6 @@ export async function POST(req: NextRequest) {
       return badRequest("Los datos proporcionados son inválidos.", "nombre, precio y stockInicial son requeridos");
     }
     
-    if (Array.isArray(body.imagenes)) {
-      const principals = body.imagenes.filter((i) => i?.esPrincipal === true).length;
-      if (principals > 1) {
-        console.log('[WARN] Validación fallida - Múltiples imágenes principales');
-        return badRequest("Los datos proporcionados son inválidos.", "Solo una imagen puede ser la principal");
-      }
-    }
-
     console.log(`[INFO] Creando nuevo producto en la base de datos - Nombre: ${body.nombre}`);
     const result = await productoDB.create(body);
     console.log(`[INFO] Producto creado exitosamente - ID: ${result.resp.id}`);

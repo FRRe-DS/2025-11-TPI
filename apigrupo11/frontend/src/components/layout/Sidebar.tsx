@@ -57,7 +57,6 @@ export const Sidebar: React.FC = () => {
     <aside style={styles.sidebar}>
       <nav style={styles.nav}>
         <SidebarLink to="/inventario" icon={<FiBox />}>Inventario</SidebarLink>
-        <SidebarLink to="/auditoria" icon={<FiSearch />}>Auditoría</SidebarLink>
         <SidebarLink to="/" icon={<FiHome />}>Dashboard</SidebarLink>
       </nav>
 

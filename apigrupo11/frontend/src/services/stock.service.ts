@@ -1,190 +1,332 @@
-import type { IProducto, IApiListResponse } from '../types/api.types';
+import type { IProducto, IApiListResponse, IProductoInput, IProductoUpdate, ICategoria } from '../types/api.types';
 
-export function getProducts(): Promise<IApiListResponse<IProducto>> {
-  const mockProducts: IProducto[] = [
-    {
-      id: 1,
-      nombre: 'Laptop Pro X1',
-      descripcion: 'Laptop de alto rendimiento para profesionales',
-      precio: 1499.99,
-      stockDisponible: 15,
-      stockReservado: 3,
-      stockTotal: 18,
-      vendedorId: 1,
-      categoriaId: 1,
-      categoria: 'Electrónica',
-      pesoKg: 1.8,
-      fechaCreacion: '2025-01-15T10:00:00Z',
-      fechaActualizacion: '2025-09-20T15:30:00Z',
-      imagenes: [
-        {
-          url: 'https://placehold.co/400x400/6366F1/FFFFFF?text=Laptop',
-          esPrincipal: true,
-        },
-      ],
-      dimensiones: { largo: 35, ancho: 24, alto: 2 },
-      ubicacion: {
-        almacen: 'Depo A',
-        pasillo: 'A1',
-        estante: 'E3',
-        nivel: 'N2',
+function resolveBaseUrl() {
+  // Prefer explicit env var `NEXT_PUBLIC_API_BASE_URL`, then `NEXT_PUBLIC_API_URL` for backwards compatibility.
+  if (process.env.NEXT_PUBLIC_API_BASE_URL) return process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+  if (typeof window !== 'undefined') return window.location.origin;
+  return 'http://localhost:3000';
+}
+
+export async function getProducts(token?: string, page = 1, limit = 20, q?: string, categoriaId?: number): Promise<IApiListResponse<IProducto>> {
+  const params = new URLSearchParams();
+  params.set('page', String(page));
+  params.set('limit', String(limit));
+  if (q) params.set('q', q);
+  if (categoriaId) params.set('categoriaId', String(categoriaId));
+
+  const baseUrl = resolveBaseUrl();
+  const url = `${baseUrl}/api/productos?${params.toString()}`;
+
+  try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    // Log de diagnóstico para identificar base URL y query
+    if (typeof window !== 'undefined') console.debug('[stock.service] GET', url);
+
+    // Control de timeout para evitar esperas indefinidas y clarificar fallos de red
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+    const res = await fetch(url, { headers, method: 'GET', signal: controller.signal });
+    clearTimeout(timer);
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`HTTP ${res.status}: ${text}`);
+    }
+
+    const data = await res.json();
+    const parsed = data as IApiListResponse<any>;
+    return {
+      data: Array.isArray(parsed.data) ? parsed.data.map(mapBackendProductoToFrontend) : [],
+      pagination: parsed.pagination,
+    };
+  } catch (error) {
+    // Fallback a datos mock para desarrollo offline
+    console.warn('Error fetching products from API, usando datos de ejemplo.', error);
+    if (typeof window !== 'undefined') {
+      console.warn('[stock.service] URL usada:', url);
+      console.warn('⚠️ Backend no disponible. Mostrando datos de ejemplo. Para ver datos reales, inicia el backend en puerto 3000.');
+    }
+    // Datos mock de ejemplo para desarrollo sin backend
+    const mock: IProducto[] = [
+      {
+        id: 1,
+        nombre: 'Laptop HP',
+        descripcion: 'Laptop HP 15.6" Intel Core i5',
+        precio: 850.00,
+        stockDisponible: 10,
+        stockReservado: 2,
+        stockTotal: 12,
+        vendedorId: 1,
+        categoriaId: 1,
+        categoria: 'Electrónica',
+        categorias: [{ id: 1, nombre: 'Electrónica', descripcion: null }],
+        pesoKg: 2.5,
+        fechaCreacion: new Date().toISOString(),
+        fechaActualizacion: new Date().toISOString(),
       },
-    },
-    {
-      id: 2,
-      nombre: 'Monitor Gamer Curvo 27"',
-      descripcion: 'Monitor con alta tasa de refresco para gaming.',
-      precio: 399.99,
-      stockDisponible: 30,
-      stockReservado: 5,
-      stockTotal: 35,
-      vendedorId: 1,
-      categoriaId: 1,
-      categoria: 'Electrónica',
-      pesoKg: 4.5,
-      fechaCreacion: '2025-02-20T11:00:00Z',
-      fechaActualizacion: '2025-10-01T12:00:00Z',
-      imagenes: [
-        {
-          url: 'https://placehold.co/400x400/10B981/FFFFFF?text=Monitor',
-          esPrincipal: true,
-        },
-      ],
-      dimensiones: { largo: 61, ancho: 45, alto: 18 },
-      ubicacion: {
-        almacen: 'Depo B',
-        pasillo: 'B2',
-        estante: 'E1',
-        nivel: 'N1',
+      {
+        id: 2,
+        nombre: 'Mouse Logitech',
+        descripcion: 'Mouse inalámbrico Logitech MX Master',
+        precio: 99.99,
+        stockDisponible: 25,
+        stockReservado: 0,
+        stockTotal: 25,
+        vendedorId: 1,
+        categoriaId: 1,
+        categoria: 'Electrónica',
+        categorias: [{ id: 1, nombre: 'Electrónica', descripcion: null }],
+        pesoKg: 0.2,
+        fechaCreacion: new Date().toISOString(),
+        fechaActualizacion: new Date().toISOString(),
       },
-    },
-    {
-      id: 3,
-      nombre: 'Teclado Mecánico RGB',
-      descripcion: 'Teclado con switches Cherry MX Red.',
-      precio: 129.99,
-      stockDisponible: 0,
+      {
+        id: 3,
+        nombre: 'Teclado Mecánico',
+        descripcion: 'Teclado mecánico RGB retroiluminado',
+        precio: 129.99,
+        stockDisponible: 15,
+        stockReservado: 3,
+        stockTotal: 18,
+        vendedorId: 1,
+        categoriaId: 1,
+        categoria: 'Electrónica',
+        categorias: [{ id: 1, nombre: 'Electrónica', descripcion: null }],
+        pesoKg: 1.0,
+        fechaCreacion: new Date().toISOString(),
+        fechaActualizacion: new Date().toISOString(),
+      },
+    ];
+    return {
+      data: mock,
+      pagination: {
+        currentPage: page,
+        pageSize: limit,
+        totalItems: mock.length,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+    };
+  }
+}
+
+export function mapBackendProductoToFrontend(p: any): IProducto {
+  const categorias = Array.isArray(p?.categorias)
+    ? p.categorias.filter(Boolean).map((c: any) => ({
+        id: Number(c.id),
+        nombre: String(c.nombre ?? ''),
+        descripcion: c.descripcion ?? null,
+      }))
+    : [];
+  const categoria = categorias.length > 0 ? categorias[0].nombre : '';
+  const categoriaId = categorias.length > 0 ? categorias[0].id : 0;
+  const dimensiones = p?.dimensiones
+    ? {
+        largo: Number(p.dimensiones.largoCm ?? 0),
+        ancho: Number(p.dimensiones.anchoCm ?? 0),
+        alto: Number(p.dimensiones.altoCm ?? 0),
+      }
+    : undefined;
+  const ubicacion = p?.ubicacion
+    ? {
+        street: String(p.ubicacion.street ?? ''),
+        city: p.ubicacion.city ?? undefined,
+        state: p.ubicacion.state ?? undefined,
+        postal_code: p.ubicacion.postal_code ?? undefined,
+        country: p.ubicacion.country ?? undefined,
+      }
+    : undefined;
+  const stockDisponible = Number(p.stockDisponible ?? p.stock_disponible ?? 0);
+  const stockReservado = Number(p.stockReservado ?? p.stock_reservado ?? 0);
+  return {
+    id: Number(p.id),
+    nombre: String(p.nombre ?? ''),
+    descripcion: String(p.descripcion ?? ''),
+    precio: Number(p.precio ?? 0),
+    stockDisponible,
+    stockReservado,
+    stockTotal: stockDisponible + stockReservado,
+    vendedorId: 0,
+    categoriaId,
+    categoria,
+    categorias,
+    pesoKg: Number(p.pesoKg ?? p.peso_kg ?? 0),
+    fechaCreacion: p.fechaCreacion ?? p.created_at ?? new Date().toISOString(),
+    fechaActualizacion: p.fechaActualizacion ?? p.updated_at ?? new Date().toISOString(),
+    dimensiones,
+    ubicacion,
+  };
+}
+
+export async function createProduct(token: string, input: IProductoInput): Promise<IProducto> {
+  const baseUrl = resolveBaseUrl();
+  const url = `${baseUrl}/api/productos`;
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  try {
+    // POST para crear
+    if (typeof window !== 'undefined') console.debug('[stock.service] POST', url);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+    const res = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(input),
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`HTTP ${res.status} al crear producto: ${text}`);
+    }
+    const createResp = await res.json(); // { id, mensaje }
+    const newId = Number(createResp?.id ?? 0);
+    // Intentamos obtener el producto completo; si falla, devolvemos una representación razonable
+    if (newId > 0) {
+      try {
+        if (typeof window !== 'undefined') console.debug('[stock.service] GET recien creado', `${baseUrl}/api/productos/${newId}`);
+        const getController = new AbortController();
+        const getTimer = setTimeout(() => getController.abort(), 15000);
+        const getRes = await fetch(`${baseUrl}/api/productos/${newId}`, { headers, method: 'GET', signal: getController.signal });
+        clearTimeout(getTimer);
+        if (!getRes.ok) {
+          const text = await getRes.text();
+          console.warn(`HTTP ${getRes.status} al leer producto creado: ${text}`);
+          // Fall through to build a best-effort product below
+        } else {
+          const backendProducto = await getRes.json();
+          return mapBackendProductoToFrontend(backendProducto);
+        }
+      } catch (errGet) {
+        console.warn('Error leyendo producto recien creado, usando fallback parcial.', errGet);
+      }
+    }
+
+    // Si llegamos aquí es porque no pudimos leer el producto completo desde la API.
+    // Construimos un objeto IProducto mínimo usando lo que devolvió el POST (si hay datos)
+    // o usando el `input` provisto.
+    const fallbackProducto: any = {
+      id: newId || undefined,
+      nombre: (createResp && createResp.nombre) || input.nombre || 'Producto creado',
+      descripcion: (createResp && createResp.descripcion) || input.descripcion || '',
+      precio: typeof input.precio === 'number' ? input.precio : Number(input.precio ?? 0),
+      stockDisponible: typeof input.stockInicial === 'number' ? input.stockInicial : Number(input.stockInicial ?? 0),
       stockReservado: 0,
-      stockTotal: 0,
-      vendedorId: 2,
-      categoriaId: 2,
-      categoria: 'Accesorios',
-      pesoKg: 0.9,
-      fechaCreacion: '2025-03-10T09:00:00Z',
-      fechaActualizacion: '2025-08-15T18:00:00Z',
-      imagenes: [
-        {
-          url: 'https://placehold.co/400x400/EF4444/FFFFFF?text=Teclado',
-          esPrincipal: true,
-        },
-      ],
-      dimensiones: { largo: 44, ancho: 13, alto: 3 },
-      ubicacion: {
-        almacen: 'Depo A',
-        pasillo: 'A3',
-        estante: 'E2',
-        nivel: 'N3',
-      },
-    },
-    {
-      id: 4,
-      nombre: 'Mouse Inalámbrico Pro',
-      descripcion: 'Mouse ergonómico con sensor de alta precisión.',
-      precio: 79.99,
-      stockDisponible: 45,
-      stockReservado: 8,
-      stockTotal: 53,
-      vendedorId: 1,
-      categoriaId: 2,
-      categoria: 'Accesorios',
-      pesoKg: 0.15,
-      fechaCreacion: '2025-04-05T14:00:00Z',
-      fechaActualizacion: '2025-10-10T09:30:00Z',
-      imagenes: [
-        {
-          url: 'https://placehold.co/400x400/F59E0B/FFFFFF?text=Mouse',
-          esPrincipal: true,
-        },
-      ],
-      dimensiones: { largo: 12, ancho: 6, alto: 4 },
-      ubicacion: {
-        almacen: 'Depo C',
-        pasillo: 'C1',
-        estante: 'E4',
-        nivel: 'N1',
-      },
-    },
-    {
-      id: 5,
-      nombre: 'Webcam HD 1080p',
-      descripcion: 'Cámara web con micrófono integrado y enfoque automático.',
-      precio: 89.99,
-      stockDisponible: 22,
-      stockReservado: 2,
-      stockTotal: 24,
-      vendedorId: 2,
-      categoriaId: 1,
-      categoria: 'Electrónica',
-      pesoKg: 0.3,
-      fechaCreacion: '2025-05-12T08:00:00Z',
-      fechaActualizacion: '2025-10-15T16:45:00Z',
-      imagenes: [
-        {
-          url: 'https://placehold.co/400x400/8B5CF6/FFFFFF?text=Webcam',
-          esPrincipal: true,
-        },
-      ],
-      dimensiones: { largo: 9, ancho: 7, alto: 6 },
-      ubicacion: {
-        almacen: 'Depo B',
-        pasillo: 'B1',
-        estante: 'E2',
-        nivel: 'N2',
-      },
-    },
-    {
-      id: 6,
-      nombre: 'Auriculares Bluetooth',
-      descripcion: 'Auriculares inalámbricos con cancelación de ruido activa.',
-      precio: 199.99,
-      stockDisponible: 8,
-      stockReservado: 1,
-      stockTotal: 9,
-      vendedorId: 1,
-      categoriaId: 2,
-      categoria: 'Accesorios',
-      pesoKg: 0.25,
-      fechaCreacion: '2025-06-18T10:30:00Z',
-      fechaActualizacion: '2025-10-18T11:20:00Z',
-      imagenes: [
-        {
-          url: 'https://placehold.co/400x400/EC4899/FFFFFF?text=Auriculares',
-          esPrincipal: true,
-        },
-      ],
-      dimensiones: { largo: 18, ancho: 16, alto: 8 },
-      ubicacion: {
-        almacen: 'Depo A',
-        pasillo: 'A2',
-        estante: 'E1',
-        nivel: 'N4',
-      },
-    },
-  ];
+      categorias: input.categoriaIds ? input.categoriaIds.map((id: any) => ({ id })) : [],
+      pesoKg: input.pesoKg ?? 0,
+      dimensiones: input.dimensiones ? { largoCm: input.dimensiones.largoCm, anchoCm: input.dimensiones.anchoCm, altoCm: input.dimensiones.altoCm } : undefined,
+      ubicacion: input.ubicacion ?? undefined,
+      fechaCreacion: new Date().toISOString(),
+      fechaActualizacion: new Date().toISOString(),
+    };
 
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        data: mockProducts,
-        pagination: {
-          currentPage: 1,
-          pageSize: 10,
-          totalItems: mockProducts.length,
-          totalPages: 1,
-          hasNextPage: false,
-          hasPreviousPage: false,
-        },
-      });
-    }, 1000);
+    return mapBackendProductoToFrontend(fallbackProducto);
+  } catch (err: any) {
+    const isAbort = err?.name === 'AbortError';
+    const tip = `URL: ${url}. Verifica que el backend esté corriendo y que NEXT_PUBLIC_API_BASE_URL apunte al puerto correcto.`;
+    const msg = isAbort ? `Tiempo de espera agotado. ${tip}` : `${err?.message || 'Fallo de red'}. ${tip}`;
+    throw new Error(msg);
+  }
+}
+
+export async function updateProduct(token: string, id: number, input: IProductoUpdate): Promise<IProducto> {
+  const baseUrl = resolveBaseUrl();
+  const url = `${baseUrl}/api/productos/${id}`;
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify(input),
+    signal: controller.signal,
   });
+  clearTimeout(timer);
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`No se pudo actualizar el producto (HTTP ${res.status}): ${text}`);
+  }
+  const backendProducto = await res.json();
+  return mapBackendProductoToFrontend(backendProducto);
+}
+
+export async function deleteProduct(token: string, id: number): Promise<void> {
+  const baseUrl = resolveBaseUrl();
+  const url = `${baseUrl}/api/productos/${id}`;
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  
+  console.log('[stock.service] DELETE producto:', { id, url, hasToken: !!token });
+  
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+    if (typeof window !== 'undefined') console.debug('[stock.service] DELETE headers:', headers);
+    const res = await fetch(url, {
+      method: 'DELETE',
+      headers,
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    
+    console.log('[stock.service] DELETE response:', { status: res.status, ok: res.ok });
+    
+    if (!res.ok && res.status !== 204) {
+      const text = await res.text();
+      console.error('[stock.service] DELETE error response:', text);
+      throw new Error(`No se pudo eliminar el producto (HTTP ${res.status}): ${text}`);
+    }
+    console.log('[stock.service] DELETE exitoso');
+    return;
+  } catch (err: any) {
+    const isAbort = err?.name === 'AbortError';
+    const tip = `URL: ${url}. Verifica que el backend esté corriendo y que NEXT_PUBLIC_API_BASE_URL apunte al puerto correcto.`;
+    const msg = isAbort ? `Tiempo de espera agotado. ${tip}` : `${err?.message || 'Fallo de red'}. ${tip}`;
+    console.error('[stock.service] DELETE exception:', err);
+    throw new Error(msg);
+  }
+}
+
+export async function getProductById(token: string, id: number): Promise<IProducto> {
+  const baseUrl = resolveBaseUrl();
+  const url = `${baseUrl}/api/productos/${id}`;
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  const res = await fetch(url, { method: 'GET', headers, signal: controller.signal });
+  clearTimeout(timer);
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`No se pudo obtener el producto (HTTP ${res.status}): ${text}`);
+  }
+  const backendProducto = await res.json();
+  return mapBackendProductoToFrontend(backendProducto);
+}
+
+export async function listCategories(token?: string): Promise<ICategoria[]> {
+  const baseUrl = resolveBaseUrl();
+  const url = `${baseUrl}/api/categorias`;
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  const res = await fetch(url, { method: 'GET', headers, signal: controller.signal });
+  clearTimeout(timer);
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`No se pudieron cargar las categorías (HTTP ${res.status}): ${text}`);
+  }
+
+  const data = await res.json();
+  return Array.isArray(data)
+    ? data.map((c) => ({ id: Number(c.id), nombre: String(c.nombre ?? ''), descripcion: c.descripcion ?? null }))
+    : [];
 }

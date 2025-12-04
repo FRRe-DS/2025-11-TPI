@@ -1,9 +1,50 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { theme } from '../../styles/theme';
 import { Button } from '../ui/Button';
-// NOTA: ImageDropzone se eliminó porque la API espera una URL, no un archivo.
+import type { ICategoria, IProducto, IProductoInput, IProductoUpdate } from '../../types/api.types';
 
-// Estilos (se añadió 'formSubGrid' para campos anidados)
+interface FormState {
+  nombre: string;
+  descripcion: string;
+  precio: string;
+  stockInicial: string;
+  pesoKg: string;
+  dimensiones: {
+    largoCm: string;
+    anchoCm: string;
+    altoCm: string;
+  };
+  ubicacion: {
+    street: string;
+    city: string;
+    state: string;
+    postal_code: string;
+    country: string;
+  };
+  categoriaId: number | '';
+}
+
+const EMPTY_FORM: FormState = {
+  nombre: '',
+  descripcion: '',
+  precio: '',
+  stockInicial: '',
+  pesoKg: '',
+  dimensiones: {
+    largoCm: '',
+    anchoCm: '',
+    altoCm: '',
+  },
+  ubicacion: {
+    street: '',
+    city: '',
+    state: '',
+    postal_code: '',
+    country: 'AR',
+  },
+  categoriaId: '',
+};
+
 const styles: { [key: string]: React.CSSProperties } = {
   panel: {
     backgroundColor: theme.colors.surface,
@@ -12,12 +53,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexDirection: 'column',
     boxSizing: 'border-box',
     width: '100%',
-  },
-  buttonContainer: {
-    display: 'flex',
-    gap: theme.spacing.md,
-    marginTop: 'auto',
-    paddingTop: theme.spacing.lg,
   },
   form: {
     display: 'flex',
@@ -29,11 +64,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     gridTemplateColumns: '1fr 1fr',
     gap: `${theme.spacing.lg} ${theme.spacing.md}`,
   },
-  // Rejilla para campos anidados como dimensiones y ubicación
   formSubGrid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: `${theme.spacing.md}`,
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: theme.spacing.md,
   },
   fieldGroup: {
     display: 'flex',
@@ -45,7 +79,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   label: {
     fontSize: theme.fontSizes.caption,
-    fontWeight: '600',
+    fontWeight: 600,
     color: theme.colors.textSecondary,
     textTransform: 'uppercase',
   },
@@ -71,7 +105,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     minHeight: '100px',
     resize: 'vertical',
   },
-  // Estilo para un grupo de campos (ej. Dimensiones)
   fieldSet: {
     border: `1px solid ${theme.colors.border}`,
     borderRadius: theme.borderRadius.md,
@@ -80,68 +113,131 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   legend: {
     fontSize: theme.fontSizes.caption,
-    fontWeight: '600',
+    fontWeight: 600,
     color: theme.colors.textSecondary,
     textTransform: 'uppercase',
     padding: '0 4px',
   },
-  checkboxContainer: {
+  buttonContainer: {
     display: 'flex',
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-    paddingTop: '8px',
+    justifyContent: 'flex-end',
+    gap: theme.spacing.md,
+    marginTop: theme.spacing.lg,
+  },
+  alert: {
+    marginBottom: theme.spacing.md,
+    padding: theme.spacing.sm,
+    borderRadius: theme.borderRadius.sm,
+    border: `1px solid ${theme.colors.danger}`,
+    color: theme.colors.danger,
+  },
+  success: {
+    marginBottom: theme.spacing.md,
+    padding: theme.spacing.sm,
+    borderRadius: theme.borderRadius.sm,
+    border: '1px solid #16a34a',
+    color: '#22c55e',
   },
 };
 
-// Estado inicial basado en el schema 'ProductoInput'
-const initialFormState = {
-  nombre: '',
-  descripcion: '',
-  precio: 0,
-  stockInicial: 0,
-  pesoKg: 0,
-  // Objeto anidado para dimensiones
+const buildStateFromProduct = (product: IProducto): FormState => ({
+  nombre: product.nombre ?? '',
+  descripcion: product.descripcion ?? '',
+  precio: product.precio ? String(product.precio) : '',
+  stockInicial: product.stockDisponible ? String(product.stockDisponible) : '',
+  pesoKg: product.pesoKg ? String(product.pesoKg) : '',
   dimensiones: {
-    largoCm: 0,
-    anchoCm: 0,
-    altoCm: 0,
+    largoCm: product.dimensiones?.largo ? String(product.dimensiones.largo) : '',
+    anchoCm: product.dimensiones?.ancho ? String(product.dimensiones.ancho) : '',
+    altoCm: product.dimensiones?.alto ? String(product.dimensiones.alto) : '',
   },
-  // Objeto anidado para ubicacion
   ubicacion: {
-    street: '',
-    city: 'Resistencia', // Valor por defecto
-    state: 'Chaco', // Valor por defecto
-    postal_code: '',
-    country: 'AR', // Valor por defecto
+    street: product.ubicacion?.street ?? '',
+    city: product.ubicacion?.city ?? '',
+    state: product.ubicacion?.state ?? '',
+    postal_code: product.ubicacion?.postal_code ?? '',
+    country: product.ubicacion?.country ?? 'AR',
   },
-  // Array de imágenes (empezamos con una)
-  imagenes: [{ url: '', esPrincipal: true }],
-  // Campo de texto para IDs de categoría
-  categoriaIds: '',
-};
+  categoriaId: product.categorias && product.categorias.length > 0 ? product.categorias[0].id : '',
+});
+
+const hasDimensionData = (dim: FormState['dimensiones']) =>
+  dim.largoCm !== '' || dim.anchoCm !== '' || dim.altoCm !== '';
+
+const hasLocationData = (loc: FormState['ubicacion']) =>
+  loc.street !== '' || loc.city !== '' || loc.state !== '' || loc.postal_code !== '' || loc.country !== '';
 
 interface AddProductFormProps {
   onClose: () => void;
-  onAdd?: (product: any) => void;
+  onAdd?: (product: IProducto) => void;
+  onUpdate?: (product: IProducto) => void;
+  token?: string;
+  categories?: ICategoria[];
+  mode?: 'create' | 'edit';
+  product?: IProducto | null;
 }
 
-export const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onAdd }) => {
-  const [formData, setFormData] = useState(initialFormState);
+export const AddProductForm: React.FC<AddProductFormProps> = ({
+  onClose,
+  onAdd,
+  onUpdate,
+  token,
+  categories = [],
+  mode = 'create',
+  product = null,
+}) => {
+  const [formData, setFormData] = useState<FormState>(() =>
+    mode === 'edit' && product ? buildStateFromProduct(product) : { ...EMPTY_FORM }
+  );
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [localCategories, setLocalCategories] = useState<ICategoria[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
-  // Handler para campos de texto/número simples
+  useEffect(() => {
+    if (mode === 'edit' && product) {
+      setFormData(buildStateFromProduct(product));
+    }
+    if (mode === 'create' && product === null) {
+      setFormData({ ...EMPTY_FORM });
+    }
+  }, [mode, product]);
+
+  useEffect(() => {
+  const fetchCategorias = async () => {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+      const res = await fetch(`${baseUrl}/api/categorias`);
+      const data = await res.json();
+      setLocalCategories(data);
+    } catch (err) {
+      console.error('Error cargando categorías:', err);
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
+  // Si el componente NO recibe categorías desde props, las trae él solo
+  if (!categories || categories.length === 0) {
+    fetchCategorias();
+  } else {
+    setLocalCategories(categories);
+    setLoadingCategories(false);
+  }
+}, [categories]);
+
+
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: e.target instanceof HTMLSelectElement ? Number(value) || '' : value,
     }));
   };
 
-  // Handler para campos anidados (dimensiones, ubicacion)
   const handleNestedChange = (
     group: 'dimensiones' | 'ubicacion',
     e: React.ChangeEvent<HTMLInputElement>
@@ -156,88 +252,186 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onAdd }
     }));
   };
 
-  // Handler para el array de imágenes (simplificado para una sola imagen)
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      imagenes: [
-        {
-          ...prev.imagenes[0],
-          [name]: type === 'checkbox' ? checked : value,
-        },
-      ],
-    }));
+  const parseNumber = (value: string, decimals = 2): number | undefined => {
+    if (value === '') return undefined;
+    const parsed = decimals === 0 ? parseInt(value, 10) : parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const buildInputPayload = (): { create?: IProductoInput; update?: IProductoUpdate } => {
+    const precio = parseNumber(formData.precio);
+    const stockInicial = parseNumber(formData.stockInicial, 0);
+    const pesoKg = parseNumber(formData.pesoKg);
+
+    if (precio === undefined || stockInicial === undefined) {
+      throw new Error('Completa precio y stock con valores numéricos válidos.');
+    }
+
+    const dimensiones = hasDimensionData(formData.dimensiones)
+      ? {
+          largoCm: parseNumber(formData.dimensiones.largoCm) ?? 0,
+          anchoCm: parseNumber(formData.dimensiones.anchoCm) ?? 0,
+          altoCm: parseNumber(formData.dimensiones.altoCm) ?? 0,
+        }
+      : undefined;
+
+    const ubicacion = hasLocationData(formData.ubicacion)
+      ? {
+          street: formData.ubicacion.street,
+          city: formData.ubicacion.city,
+          state: formData.ubicacion.state,
+          postal_code: formData.ubicacion.postal_code,
+          country: formData.ubicacion.country || 'AR',
+        }
+      : undefined;
+
+    const categoriaIds = formData.categoriaId ? [Number(formData.categoriaId)] : undefined;
+
+    if (mode === 'create') {
+      const payload: IProductoInput = {
+        nombre: formData.nombre,
+        descripcion: formData.descripcion || undefined,
+        precio,
+        stockInicial,
+        pesoKg,
+        dimensiones,
+        ubicacion,
+        categoriaIds,
+      };
+      return { create: payload };
+    }
+
+    const payload: IProductoUpdate = {
+      nombre: formData.nombre || undefined,
+      descripcion: formData.descripcion || undefined,
+      precio,
+      stockInicial,
+      pesoKg,
+      dimensiones: dimensiones ?? null,
+      ubicacion: ubicacion ?? null,
+      categoriaIds,
+    };
+
+    return { update: payload };
+  };
+
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg(null);
+    setSuccessMsg(null);
 
-    // 1. Transformar el estado del formulario al formato que la API espera
-    const payload = {
-      ...formData,
-      // Convertir strings a números
-      precio: parseFloat(String(formData.precio)) || 0,
-      stockInicial: parseInt(String(formData.stockInicial)) || 0,
-      pesoKg: parseFloat(String(formData.pesoKg)) || 0,
-      // Convertir strings de dimensiones a números
-      dimensiones: {
-        largoCm: parseFloat(String(formData.dimensiones.largoCm)) || 0,
-        anchoCm: parseFloat(String(formData.dimensiones.anchoCm)) || 0,
-        altoCm: parseFloat(String(formData.dimensiones.altoCm)) || 0,
-      },
-      // Convertir string de IDs a array de números
-      categoriaIds: formData.categoriaIds
-        .split(',')
-        .map((id) => parseInt(id.trim()))
-        .filter((id) => !isNaN(id) && id > 0),
-      // Asegurarse de que el objeto ubicación esté completo
-      ubicacion: {
-        ...formData.ubicacion,
-      },
-      // Filtrar imágenes sin URL
-      imagenes: formData.imagenes.filter((img) => img.url),
-    };
+    if (!formData.categoriaId) {
+      setErrorMsg('Selecciona una categoría para el producto.');
+      return;
+    }
 
-    console.log('Formulario a enviar (Payload):', payload);
-    // Creamos un producto temporal en frontend (sin backend)
-    const newProduct = {
-      id: Date.now(),
-      nombre: payload.nombre,
-      descripcion: payload.descripcion,
-      precio: payload.precio,
-      stockDisponible: payload.stockInicial,
-      stockReservado: 0,
-      stockTotal: payload.stockInicial,
-      vendedorId: 0,
-      categoriaId: payload.categoriaIds.length > 0 ? payload.categoriaIds[0] : 0,
-      categoria: '',
-      pesoKg: payload.pesoKg,
-      fechaCreacion: new Date().toISOString(),
-      fechaActualizacion: new Date().toISOString(),
-      imagenes: payload.imagenes,
-      dimensiones: {
-        largo: payload.dimensiones.largoCm,
-        ancho: payload.dimensiones.anchoCm,
-        alto: payload.dimensiones.altoCm,
-      },
-      ubicacion: {
-        almacen: payload.ubicacion.street || `${payload.ubicacion.city}`,
-      },
-    };
+    try {
+      const payload = buildInputPayload();
+      setSubmitting(true);
 
-    if (onAdd) onAdd(newProduct);
-    onClose();
+      // Construir URL base
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 
+        (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+
+      console.log('[AddProductForm] Iniciando submit:', { mode, baseUrl, hasToken: !!token });
+      console.log('[AddProductForm] Payload:', JSON.stringify(payload, null, 2));
+
+      if (mode === 'edit' && product) {
+        // Editar producto existente
+        const url = `${baseUrl}/api/productos/${product.id}`;
+        console.log('[AddProductForm] PATCH a:', url);
+
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const res = await fetch(url, {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify(payload.update),
+        });
+
+        console.log('[AddProductForm] Respuesta PATCH:', res.status, res.statusText);
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`Error ${res.status}: ${errorText}`);
+        }
+
+        const updatedData = await res.json();
+        console.log('[AddProductForm] Producto actualizado:', updatedData);
+        
+        // Obtener producto completo
+        const getRes = await fetch(`${baseUrl}/api/productos/${product.id}`, { headers });
+        const fullProduct = getRes.ok ? await getRes.json() : updatedData;
+        
+        onUpdate?.(fullProduct);
+        setSuccessMsg('Producto actualizado correctamente.');
+      } else {
+        // Crear nuevo producto
+        const url = `${baseUrl}/api/productos`;
+        console.log('[AddProductForm] POST a:', url);
+
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload.create),
+        });
+
+        console.log('[AddProductForm] Respuesta POST:', res.status, res.statusText);
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`Error ${res.status}: ${errorText}`);
+        }
+
+        const createResp = await res.json();
+        console.log('[AddProductForm] Respuesta crear:', createResp);
+
+        // Intentar obtener el producto completo
+        let createdProduct = createResp;
+        if (createResp?.id) {
+          try {
+            const getRes = await fetch(`${baseUrl}/api/productos/${createResp.id}`, { headers });
+            if (getRes.ok) {
+              createdProduct = await getRes.json();
+              console.log('[AddProductForm] Producto completo:', createdProduct);
+            }
+          } catch (err) {
+            console.warn('[AddProductForm] No se pudo obtener producto completo:', err);
+          }
+        }
+
+        onAdd?.(createdProduct);
+        setSuccessMsg('Producto agregado correctamente.');
+      }
+
+      setTimeout(() => {
+        setSubmitting(false);
+        onClose();
+      }, 900);
+    } catch (err: any) {
+      console.error('[AddProductForm] Error:', err);
+      setSubmitting(false);
+      const message = err?.message || 'Error al guardar el producto.';
+      setErrorMsg(message);
+    }
   };
+
+  const submitLabel = mode === 'edit' ? 'Guardar cambios' : 'Agregar producto';
 
   return (
     <div style={styles.panel}>
-      <form style={styles.form} onSubmit={handleSubmit}>
+      <form style={styles.form} onSubmit={onSubmit}>
+        {errorMsg && <div style={styles.alert}>{errorMsg}</div>}
+        {successMsg && <div style={styles.success}>{successMsg}</div>}
+
         <div style={styles.formGrid}>
-          {/* --- Fila 1: Nombre y Precio --- */}
           <div style={styles.fieldGroup}>
             <label style={styles.label} htmlFor="nombre">
-              Nombre del Producto
+              Nombre del producto
             </label>
             <input
               style={styles.input}
@@ -267,10 +461,9 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onAdd }
             />
           </div>
 
-          {/* --- Fila 2: Stock Inicial y Peso --- */}
           <div style={styles.fieldGroup}>
             <label style={styles.label} htmlFor="stockInicial">
-              Stock Inicial
+              Stock inicial
             </label>
             <input
               style={styles.input}
@@ -286,7 +479,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onAdd }
 
           <div style={styles.fieldGroup}>
             <label style={styles.label} htmlFor="pesoKg">
-              Peso (Kg)
+              Peso (kg)
             </label>
             <input
               style={styles.input}
@@ -300,32 +493,38 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onAdd }
             />
           </div>
 
-          {/* --- Fila 3: Categorías (Full Width) --- */}
           <div style={{ ...styles.fieldGroup, ...styles.fullWidth }}>
-            <label style={styles.label} htmlFor="categoriaIds">
-              IDs de Categoría
+            <label style={styles.label} htmlFor="categoriaId">
+              Categoría
             </label>
-            <input
+            <select
+              id="categoriaId"
+              name="categoriaId"
               style={styles.input}
-              type="text"
-              id="categoriaIds"
-              name="categoriaIds"
-              value={formData.categoriaIds}
+              value={formData.categoriaId === '' ? '' : String(formData.categoriaId)}
               onChange={handleChange}
-              placeholder="Ej: 1, 5, 22 (separados por coma)"
-            />
+              required
+            >
+              <option value="" disabled>
+                Selecciona una categoría
+              </option>
+              {loadingCategories ? (
+                <option value="">Cargando categorías...</option>
+              ) : (
+                localCategories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.nombre}
+                  </option>
+                ))
+              )}
+
+            </select>
           </div>
 
-          {/* --- Fila 4: Dimensiones (Full Width) --- */}
           <div style={{ ...styles.fieldGroup, ...styles.fullWidth }}>
             <fieldset style={styles.fieldSet}>
               <legend style={styles.legend}>Dimensiones (cm)</legend>
-              <div
-                style={{
-                  ...styles.formSubGrid,
-                  gridTemplateColumns: '1fr 1fr 1fr',
-                }}
-              >
+              <div style={styles.formSubGrid}>
                 <div style={styles.fieldGroup}>
                   <label style={styles.label} htmlFor="largoCm">
                     Largo
@@ -338,6 +537,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onAdd }
                     value={formData.dimensiones.largoCm}
                     onChange={(e) => handleNestedChange('dimensiones', e)}
                     min="0"
+                    step="0.01"
                   />
                 </div>
                 <div style={styles.fieldGroup}>
@@ -352,6 +552,7 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onAdd }
                     value={formData.dimensiones.anchoCm}
                     onChange={(e) => handleNestedChange('dimensiones', e)}
                     min="0"
+                    step="0.01"
                   />
                 </div>
                 <div style={styles.fieldGroup}>
@@ -366,13 +567,13 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onAdd }
                     value={formData.dimensiones.altoCm}
                     onChange={(e) => handleNestedChange('dimensiones', e)}
                     min="0"
+                    step="0.01"
                   />
                 </div>
               </div>
             </fieldset>
           </div>
 
-          {/* --- Fila 5: Descripción (Full Width) --- */}
           <div style={{ ...styles.fieldGroup, ...styles.fullWidth }}>
             <label style={styles.label} htmlFor="descripcion">
               Descripción
@@ -387,14 +588,13 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onAdd }
             />
           </div>
 
-          {/* --- Fila 6: Ubicación (Full Width) --- */}
           <div style={{ ...styles.fieldGroup, ...styles.fullWidth }}>
             <fieldset style={styles.fieldSet}>
-              <legend style={styles.legend}>Ubicación en Almacén</legend>
-              <div style={styles.formSubGrid}>
+              <legend style={styles.legend}>Ubicación en almacén</legend>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: theme.spacing.md }}>
                 <div style={styles.fieldGroup}>
                   <label style={styles.label} htmlFor="street">
-                    Calle
+                    Dirección
                   </label>
                   <input
                     style={styles.input}
@@ -403,7 +603,6 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onAdd }
                     name="street"
                     value={formData.ubicacion.street}
                     onChange={(e) => handleNestedChange('ubicacion', e)}
-                    required
                   />
                 </div>
                 <div style={styles.fieldGroup}>
@@ -417,12 +616,11 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onAdd }
                     name="city"
                     value={formData.ubicacion.city}
                     onChange={(e) => handleNestedChange('ubicacion', e)}
-                    required
                   />
                 </div>
                 <div style={styles.fieldGroup}>
                   <label style={styles.label} htmlFor="state">
-                    Provincia
+                    Provincia / Estado
                   </label>
                   <input
                     style={styles.input}
@@ -431,12 +629,11 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onAdd }
                     name="state"
                     value={formData.ubicacion.state}
                     onChange={(e) => handleNestedChange('ubicacion', e)}
-                    required
                   />
                 </div>
                 <div style={styles.fieldGroup}>
                   <label style={styles.label} htmlFor="postal_code">
-                    Cód. Postal
+                    Código postal
                   </label>
                   <input
                     style={styles.input}
@@ -445,12 +642,11 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onAdd }
                     name="postal_code"
                     value={formData.ubicacion.postal_code}
                     onChange={(e) => handleNestedChange('ubicacion', e)}
-                    required
                   />
                 </div>
-                <div style={{ ...styles.fieldGroup, ...styles.fullWidth }}>
+                <div style={styles.fieldGroup}>
                   <label style={styles.label} htmlFor="country">
-                    País (Cód. ISO)
+                    País
                   </label>
                   <input
                     style={styles.input}
@@ -459,63 +655,19 @@ export const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onAdd }
                     name="country"
                     value={formData.ubicacion.country}
                     onChange={(e) => handleNestedChange('ubicacion', e)}
-                    required
-                    maxLength={2}
                   />
                 </div>
               </div>
             </fieldset>
           </div>
-
-          {/* --- Fila 7: Imagen (Full Width) --- */}
-          <div style={{ ...styles.fieldGroup, ...styles.fullWidth }}>
-            <fieldset style={styles.fieldSet}>
-              <legend style={styles.legend}>Imagen Principal</legend>
-              <div style={styles.fieldGroup}>
-                <label style={styles.label} htmlFor="url">
-                  URL de la Imagen
-                </label>
-                <input
-                  style={styles.input}
-                  type="url"
-                  id="url"
-                  name="url"
-                  value={formData.imagenes[0].url}
-                  onChange={handleImageChange}
-                  placeholder="https://ejemplo.com/imagen.jpg"
-                />
-              </div>
-              <div style={styles.checkboxContainer}>
-                <input
-                  type="checkbox"
-                  id="esPrincipal"
-                  name="esPrincipal"
-                  checked={formData.imagenes[0].esPrincipal}
-                  onChange={handleImageChange}
-                />
-                <label
-                  htmlFor="esPrincipal"
-                  style={{ ...styles.label, textTransform: 'none' }}
-                >
-                  Es imagen principal
-                </label>
-              </div>
-            </fieldset>
-          </div>
         </div>
 
-        {/* --- Botones (sin cambios) --- */}
         <div style={styles.buttonContainer}>
-          <Button
-            type="button"
-            variant="secondary"
-            style={{ flex: 1 }}
-            onClick={onClose}
-          >
+          <Button type="button" variant="secondary" onClick={onClose} disabled={submitting}>
             Cancelar
           </Button>
-          <Button type="submit" variant="primary" style={{ flex: 1 }}>
-            Guardar Producto
+          <Button type="submit" disabled={submitting}>
+            {submitting ? 'Guardando…' : submitLabel}
           </Button>
         </div>
       </form>
