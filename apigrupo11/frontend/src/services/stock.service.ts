@@ -41,74 +41,13 @@ export async function getProducts(token?: string, page = 1, limit = 20, q?: stri
       pagination: parsed.pagination,
     };
   } catch (error) {
-    // Fallback a datos mock para desarrollo offline
-    console.warn('Error fetching products from API, usando datos de ejemplo.', error);
+    console.error('Error fetching products from API:', error);
     if (typeof window !== 'undefined') {
-      console.warn('[stock.service] URL usada:', url);
-      console.warn('⚠️ Backend no disponible. Mostrando datos de ejemplo. Para ver datos reales, inicia el backend en puerto 3000.');
+      console.error('[stock.service] URL usada:', url);
+      console.error('⚠️ No se pudo conectar con el backend. Verifica que esté corriendo en puerto 3000.');
     }
-    // Datos mock de ejemplo para desarrollo sin backend
-    const mock: IProducto[] = [
-      {
-        id: 1,
-        nombre: 'Laptop HP',
-        descripcion: 'Laptop HP 15.6" Intel Core i5',
-        precio: 850.00,
-        stockDisponible: 10,
-        stockReservado: 2,
-        stockTotal: 12,
-        vendedorId: 1,
-        categoriaId: 1,
-        categoria: 'Electrónica',
-        categorias: [{ id: 1, nombre: 'Electrónica', descripcion: null }],
-        pesoKg: 2.5,
-        fechaCreacion: new Date().toISOString(),
-        fechaActualizacion: new Date().toISOString(),
-      },
-      {
-        id: 2,
-        nombre: 'Mouse Logitech',
-        descripcion: 'Mouse inalámbrico Logitech MX Master',
-        precio: 99.99,
-        stockDisponible: 25,
-        stockReservado: 0,
-        stockTotal: 25,
-        vendedorId: 1,
-        categoriaId: 1,
-        categoria: 'Electrónica',
-        categorias: [{ id: 1, nombre: 'Electrónica', descripcion: null }],
-        pesoKg: 0.2,
-        fechaCreacion: new Date().toISOString(),
-        fechaActualizacion: new Date().toISOString(),
-      },
-      {
-        id: 3,
-        nombre: 'Teclado Mecánico',
-        descripcion: 'Teclado mecánico RGB retroiluminado',
-        precio: 129.99,
-        stockDisponible: 15,
-        stockReservado: 3,
-        stockTotal: 18,
-        vendedorId: 1,
-        categoriaId: 1,
-        categoria: 'Electrónica',
-        categorias: [{ id: 1, nombre: 'Electrónica', descripcion: null }],
-        pesoKg: 1.0,
-        fechaCreacion: new Date().toISOString(),
-        fechaActualizacion: new Date().toISOString(),
-      },
-    ];
-    return {
-      data: mock,
-      pagination: {
-        currentPage: page,
-        pageSize: limit,
-        totalItems: mock.length,
-        totalPages: 1,
-        hasNextPage: false,
-        hasPreviousPage: false,
-      },
-    };
+    // Lanzar el error para que la UI lo maneje
+    throw error;
   }
 }
 
