@@ -132,18 +132,46 @@ export async function createProduct(token: string, input: IProductoInput): Promi
     }
     const createResp = await res.json(); // { id, mensaje }
     const newId = Number(createResp?.id ?? 0);
-    // GET para obtener el producto completo
-    if (typeof window !== 'undefined') console.debug('[stock.service] GET recien creado', `${baseUrl}/api/productos/${newId}`);
-    const getController = new AbortController();
-    const getTimer = setTimeout(() => getController.abort(), 15000);
-    const getRes = await fetch(`${baseUrl}/api/productos/${newId}`, { headers, method: 'GET', signal: getController.signal });
-    clearTimeout(getTimer);
-    if (!getRes.ok) {
-      const text = await getRes.text();
-      throw new Error(`HTTP ${getRes.status} al leer producto creado: ${text}`);
+    // Intentamos obtener el producto completo; si falla, devolvemos una representación razonable
+    if (newId > 0) {
+      try {
+        if (typeof window !== 'undefined') console.debug('[stock.service] GET recien creado', `${baseUrl}/api/productos/${newId}`);
+        const getController = new AbortController();
+        const getTimer = setTimeout(() => getController.abort(), 15000);
+        const getRes = await fetch(`${baseUrl}/api/productos/${newId}`, { headers, method: 'GET', signal: getController.signal });
+        clearTimeout(getTimer);
+        if (!getRes.ok) {
+          const text = await getRes.text();
+          console.warn(`HTTP ${getRes.status} al leer producto creado: ${text}`);
+          // Fall through to build a best-effort product below
+        } else {
+          const backendProducto = await getRes.json();
+          return mapBackendProductoToFrontend(backendProducto);
+        }
+      } catch (errGet) {
+        console.warn('Error leyendo producto recien creado, usando fallback parcial.', errGet);
+      }
     }
-    const backendProducto = await getRes.json();
-    return mapBackendProductoToFrontend(backendProducto);
+
+    // Si llegamos aquí es porque no pudimos leer el producto completo desde la API.
+    // Construimos un objeto IProducto mínimo usando lo que devolvió el POST (si hay datos)
+    // o usando el `input` provisto.
+    const fallbackProducto: any = {
+      id: newId || undefined,
+      nombre: (createResp && createResp.nombre) || input.nombre || 'Producto creado',
+      descripcion: (createResp && createResp.descripcion) || input.descripcion || '',
+      precio: typeof input.precio === 'number' ? input.precio : Number(input.precio ?? 0),
+      stockDisponible: typeof input.stockInicial === 'number' ? input.stockInicial : Number(input.stockInicial ?? 0),
+      stockReservado: 0,
+      categorias: input.categoriaIds ? input.categoriaIds.map((id: any) => ({ id })) : [],
+      pesoKg: input.pesoKg ?? 0,
+      dimensiones: input.dimensiones ? { largoCm: input.dimensiones.largoCm, anchoCm: input.dimensiones.anchoCm, altoCm: input.dimensiones.altoCm } : undefined,
+      ubicacion: input.ubicacion ?? undefined,
+      fechaCreacion: new Date().toISOString(),
+      fechaActualizacion: new Date().toISOString(),
+    };
+
+    return mapBackendProductoToFrontend(fallbackProducto);
   } catch (err: any) {
     const isAbort = err?.name === 'AbortError';
     const tip = `URL: ${url}. Verifica que el backend esté corriendo y que NEXT_PUBLIC_API_BASE_URL apunte al puerto correcto.`;
