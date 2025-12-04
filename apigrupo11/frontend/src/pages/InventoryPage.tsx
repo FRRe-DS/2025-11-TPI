@@ -53,7 +53,8 @@ export const InventoryPage: React.FC = () => {
   const [products, setProducts] = useState<IProducto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<IProducto | null>(null);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -79,12 +80,12 @@ export const InventoryPage: React.FC = () => {
   }, []);
 
   // --- (INICIO) MODIFICACIÓN ---
-  // Creamos una función explícita para cerrar el modal de añadir
-  const handleCloseAddModal = () => {
-    setIsAddModalOpen(false);
-    // Opcional: Aquí podrías añadir lógica para recargar la tabla si se añadió un producto
-    // loadProducts();
+  // Creamos una función explícita para cerrar el modal de añadir/editar
+  const handleCloseFormModal = () => {
+    setIsFormModalOpen(false);
+    setEditingProduct(null);
   };
+
   // Callback que recibe un producto nuevo desde el formulario y lo añade al estado
   const handleAddProduct = (product: IProducto) => {
     setProducts((prev) => {
@@ -96,7 +97,26 @@ export const InventoryPage: React.FC = () => {
       }
       return next;
     });
-    setIsAddModalOpen(false);
+    handleCloseFormModal();
+  };
+
+  const handleProductUpdated = (updatedProduct: IProducto) => {
+    setProducts((prev) => {
+      const next = prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p));
+      try {
+        localStorage.setItem('local_products_v1', JSON.stringify(next));
+      } catch (err) {
+        console.warn('Error guardando productos en localStorage', err);
+      }
+      return next;
+    });
+    handleCloseFormModal();
+  };
+
+  const handleEditClick = (product: IProducto) => {
+    console.log('InventoryPage: handleEditClick', product);
+    setEditingProduct(product);
+    setIsFormModalOpen(true);
   };
   // --- (FIN) MODIFICACIÓN ---
 
@@ -105,7 +125,10 @@ export const InventoryPage: React.FC = () => {
       <SectionHeader
         title="Inventario"
         onFilterClick={() => setIsFilterModalOpen(true)}
-        onAddClick={() => setIsAddModalOpen(true)} // Esto abre el modal
+        onAddClick={() => {
+          setEditingProduct(null);
+          setIsFormModalOpen(true);
+        }}
       />
 
       <div style={styles.tableContainer}>
@@ -116,7 +139,11 @@ export const InventoryPage: React.FC = () => {
             <ProductTableHeader />
             <div style={styles.tableContent}>
               {products.map((product) => (
-                <ProductTableRow key={product.id} product={product} />
+                <ProductTableRow 
+                  key={product.id} 
+                  product={product} 
+                  onEdit={handleEditClick}
+                />
               ))}
             </div>
           </>
@@ -132,18 +159,21 @@ export const InventoryPage: React.FC = () => {
       </Sidebar>
 
       {/* --- (INICIO) MODIFICACIÓN --- */}
-      {/* 2. Modificamos el Modal de Añadir Producto */}
+      {/* 2. Modificamos el Modal de Añadir/Editar Producto */}
       <Modal
-        isOpen={isAddModalOpen}
-        onClose={handleCloseAddModal} // Usamos la nueva función
-        title="Añadir Nuevo Producto"
+        isOpen={isFormModalOpen}
+        onClose={handleCloseFormModal} // Usamos la nueva función
+        title={editingProduct ? "Editar Producto" : "Añadir Nuevo Producto"}
         width="700px" // Le damos un ancho adecuado al formulario
       >
         {/* 3. Reemplazamos el <p> con el formulario real */}
         {/* Le pasamos la función 'onClose' para que el botón "Cancelar" funcione */}
         <AddProductForm
-          onClose={handleCloseAddModal}
+          onClose={handleCloseFormModal}
           onAdd={handleAddProduct}
+          onUpdate={handleProductUpdated}
+          mode={editingProduct ? 'edit' : 'create'}
+          product={editingProduct}
         />
       </Modal>
       {/* --- (FIN) MODIFICACIÓN --- */}

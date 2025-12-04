@@ -121,11 +121,13 @@ const styles: { [key: string]: React.CSSProperties } = {
 interface ProductTableRowProps {
   product: IProducto;
   onDelete?: (productId: number) => void;
+  onEdit?: (product: IProducto) => void;
 }
 
 export const ProductTableRow: React.FC<ProductTableRowProps> = ({
   product,
   onDelete,
+  onEdit,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -199,7 +201,13 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
           }}
           onClick={(e) => {
             e.stopPropagation();
-            alert(`Editar ${product.nombre}`);
+            console.log('Click en editar producto:', product.id);
+            if (onEdit) {
+                console.log('Llamando a onEdit');
+                onEdit(product);
+            } else {
+                console.warn('onEdit no definido');
+            }
           }}
           title="Editar"
         >
